@@ -13,18 +13,13 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import mongoengine
 from mongoengine import connect
-connect('mydatabase')
-# connect(
-#     db='test',
-#     username='user',
-#     password='12345',
-#     host='mongodb://admin:qwerty@localhost/production'
-# )
 
+connect(
+    host=os.environ['MONGODB_URL']
+)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -84,7 +79,8 @@ WSGI_APPLICATION = 'sexybaby.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': '',
+        'ENGINE': 'djongo',
+        'NAME':'sexy'
     },
 }
 
