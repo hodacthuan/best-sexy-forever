@@ -2,9 +2,6 @@
 CWD=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 cd ${CWD}
 
-# install tools
-./devops/scripts/install-tools.sh
-
 # environment
 set -a
 source devops/commons.env
@@ -39,7 +36,7 @@ function upService() {
 
     case "${DEPLOY_ENV}" in
     local)
-   
+        
         docker-compose -f devops/docker-compose.yml up -d
         ;;
     prod)
@@ -68,6 +65,10 @@ case $COMMAND in
 
     up)
         upService $@
+        ;;
+    
+    build)
+        docker-compose -f devops/docker-compose.yml build
         ;;
 
     down)
