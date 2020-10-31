@@ -5,7 +5,7 @@ import time
 import random
 import requests
 from bs4 import BeautifulSoup, Tag, NavigableString
-from page_scrape.models import Post
+from page_scrape.models import Album
 import requests
 import logging
 
@@ -17,51 +17,134 @@ coloredlogs.install()
 logging.info("It works!")
 
 
-def scrapeEachPost(url, thumbnail):
-    postFoundInDB = Post.objects(url=url, source=source)
-    if ~(len(postFoundInDB) == 0):
-        print('Scrape url:', url)
+def scrapeImgInPg(url):
+    """Scrape all images inside the url of album and return list of image object
+    Args:
+        url (str): url of album
 
-        time.sleep(2)
-        html = BeautifulSoup(requests.get(
-            url, verify=False).text, 'html.parser')
-        title = html.find("img", {"id": "bigImg"}).get('alt')
+    Returns:
+        Object of image contain title and images scraped
+    """
 
-        firstImageUrl = html.find("img", {"id": "bigImg"}).get(
-            'src').replace('//', 'https://')
-        imageUrl = firstImageUrl.split('/000.')
-        print('First image url:', imageUrl)
-        bot = 0
-        top = 100
-        while ((top-bot) > 1):
-            num = int((top+bot)/2)
-            numStr = ('0000' + str(num))[-3:]
+    html = BeautifulSoup(requests.get(
+        url,
+        verify=True).text, 'html.parser')
 
-            indexUrl = imageUrl[0]+'/'+numStr+'.'+imageUrl[1]
-            print(indexUrl)
-            if (requests.get(indexUrl).status_code == 200):
-                bot = num
-                print('num', num)
-            else:
-                top = num
+    album = {}
+    album['title'] = html.find(
+        class_='td-post-header').find(class_='td-post-title').find(class_='entry-title').contents[0]
+
+    imgLiHtml = html.find(class_='td-gallery-content').find_all('img')
+    imgUrls = []
+    for imgHtml in imgLiHtml:
+        imgUrl = imgHtml.get('src')
+        if (imgUrl):
+            imgObj = {}
+            imgObj['sourceUrl'] = imgUrl
+            imgUrls.append(imgObj)
+    album['images'] = imgUrls
+
+    totalPg = html.find("div", {"id": "pages"}).find_all('a')
+    album['totalPg'] = len(totalPg)-1
+
+    tagHtmls = html.find(class_='td-category').find_all('li',
+                                                        {'class': 'entry-category'})
+    if len(tagHtmls) > 0:
+        album['tags'] = []
+        for tagHtml in tagHtmls:
+            tag = tagHtml.find('a').contents[0]
+            if ~(tag in album['tags']):
+                album['tags'].append(tag)
+
+    return album
+
+
+def scrapeAllImgInAlbum(album):
+    """Scrape all images in album and return list of image object
+    Args:
+        url(str): url of album
+
+    Returns:
+        Object of image contain title and images scraped
+    """
+    print('Scrape images in url:', album['url'])
+
+    pgAlbum = scrapeImgInPg(album['url'])
+    album['images'] = []
+    album['title'] = pgAlbum['title']
+    if 'tags' in pgAlbum:
+        album['tags'] = pgAlbum['tags']
+
+    for x in range(pgAlbum['totalPg']):
+        time.sleep(0.2)
+
+        pageUrl = album['url'].split('.html')[0] + '_' + str(x + 1) + '.html'
+        pgAlbum = scrapeImgInPg(pageUrl)
+        for imgObj in pgAlbum['images']:
+            album['images'].append(imgObj)
+
+    if 'thumbnail' in album:
+        album['thumbnail'] = album['images'][0]
+
+    return album
 
 
 def scrapeListofAlbum():
+    """Scrape the gallery page and return list of album
+    Args:
+        None.
+    Returns:
+        List of album obj
+    """
+
     html = BeautifulSoup(requests.get(
-        galleryUrl, verify=False).text, 'html.parser')
-    postListHtml = html.find(class_='td-related-row')
-    # logging.info(postListHtml)
+        galleryUrl,
+        verify=True
+    ).text, 'html.parser')
 
-    for postHtml in postListHtml:
-        # logging.info(postHtml)
+    albumLiHtml = html.find_all(class_='td-related-gallery')
 
-        if isinstance(postHtml.find('a'), Tag):
-            postUrl = originUrl + postHtml.find('a').get('href')
-            print(postUrl)
-            # thumbnail = postHtml.find('a').find('img').get('src').replace('//','https://')
+    albumLi = []
+    for albumHtml in albumLiHtml:
+        if isinstance(albumHtml.find('a'), Tag):
+            albumUrl = originUrl + albumHtml.find('a').get('href')
+            thnailUrl = albumHtml.find(
+                'img', {'class': 'entry-thumb'}).get('data-original')
 
-        # if postUrl:
-        #     scrapeEachPost(postUrl,thumbnail)
+            if (albumUrl):
+                album = {
+                    'url': albumUrl,
+                    'thumbnail': {
+                        'sourceUrl': thnailUrl
+                    }
+                }
+
+                albumLi.append(album)
+
+    return albumLi
 
 
-scrapeListofAlbum()
+def scrapeEachGallery():
+    albumObjLi = scrapeListofAlbum()
+
+    for album in albumObjLi:
+        if (album['url'] != 'https://kissgoddess.com/album/34147.html'):
+            continue
+
+        postFoundInDB = Album.objects(url=album['url'], source=source)
+
+        if (len(postFoundInDB) == 0):
+
+            album = scrapeAllImgInAlbum(album)
+            print(album)
+
+            album = Album(title=album['title'],
+                          source=source,
+                          url=album['url'],
+                          tags=album['tags'],
+                          images=album['images'],
+                          thumbnail=album['thumbnail'])
+            album.save()
+
+
+scrapeEachGallery()
