@@ -1,6 +1,5 @@
 from django.db import models
-
-from mongoengine import *
+from mongoengine import BooleanField, StringField, QuerySetManager, DateTimeField, ListField, EmbeddedDocumentField, EmbeddedDocument, Document
 import datetime
 
 
