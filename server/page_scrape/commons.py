@@ -2,6 +2,9 @@ import logging
 import mongoengine
 import page_scrape
 import boto3
+import shutil
+import os.path
+from os import path
 import os
 from botocore.exceptions import NoCredentialsError
 import urllib.request
@@ -43,12 +46,24 @@ def uploadToAws(filePath, s3FilePath):
         return False
 
 
-def downloadAndSave(url, path):
-    tempPath = '/tmp/' + path.split('.')[0]
-    tempFile = '/tmp/' + path
-    os.makedirs(tempPath)
+def downloadAndSave(url, filePath, fileName):
+
+    tempPath = '/tmp/' + filePath
+    tempFile = '/tmp/' + filePath + '/' + fileName
+
+    if not(path.isdir(tempPath)):
+        os.makedirs(tempPath)
+
     urllib.request.urlretrieve(
         url, tempFile)
 
     return uploadToAws(
-        tempFile, path)
+        tempFile, filePath + '/' + fileName)
+
+
+def deleteTempPath(filePath):
+    tempPath = '/tmp/' + filePath
+    try:
+        shutil.rmtree(tempPath)
+    except OSError as e:
+        print("Error: %s - %s." % (e.filename, e.strerror))
