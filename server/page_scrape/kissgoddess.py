@@ -21,6 +21,41 @@ coloredlogs.install()
 logging.info("It works!")
 
 
+def scrapeListofAlbum():
+    """Scrape the gallery page and return list of album
+    Args:
+        None.
+    Returns:
+        List of album obj
+    """
+
+    html = BeautifulSoup(requests.get(
+        galleryUrl,
+        verify=True
+    ).text, 'html.parser')
+
+    albumLiHtml = html.find_all(class_='td-related-gallery')
+
+    albumLi = []
+    for albumHtml in albumLiHtml:
+        if isinstance(albumHtml.find('a'), Tag):
+            albumUrl = originUrl + albumHtml.find('a').get('href')
+            thnailUrl = albumHtml.find(
+                'img', {'class': 'entry-thumb'}).get('data-original')
+
+            if (albumUrl):
+                album = {
+                    'url': albumUrl,
+                    'thumbnail': {
+                        'sourceUrl': thnailUrl
+                    }
+                }
+
+                albumLi.append(album)
+
+    return albumLi
+
+
 def scrapeImgInPg(url, albumId):
     """Scrape all images inside the url of album and return list of image object
     Args:
@@ -114,41 +149,6 @@ def scrapeAllImgInAlbum(album):
         album['thumbnail'] = album['images'][0]
 
     return album
-
-
-def scrapeListofAlbum():
-    """Scrape the gallery page and return list of album
-    Args:
-        None.
-    Returns:
-        List of album obj
-    """
-
-    html = BeautifulSoup(requests.get(
-        galleryUrl,
-        verify=True
-    ).text, 'html.parser')
-
-    albumLiHtml = html.find_all(class_='td-related-gallery')
-
-    albumLi = []
-    for albumHtml in albumLiHtml:
-        if isinstance(albumHtml.find('a'), Tag):
-            albumUrl = originUrl + albumHtml.find('a').get('href')
-            thnailUrl = albumHtml.find(
-                'img', {'class': 'entry-thumb'}).get('data-original')
-
-            if (albumUrl):
-                album = {
-                    'url': albumUrl,
-                    'thumbnail': {
-                        'sourceUrl': thnailUrl
-                    }
-                }
-
-                albumLi.append(album)
-
-    return albumLi
 
 
 def scrapeEachGallery():
