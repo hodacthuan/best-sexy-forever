@@ -13,4 +13,6 @@ botocore==1.19.9
 virtualenv
 mongoengine
 coloredlogs
+python-dotenv
+django-crontab
 python-telegram-bot

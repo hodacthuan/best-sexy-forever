@@ -23,6 +23,12 @@ sudo apt install -y python3-pip
 pip3 install -r ./server/requirements.txt
 python3 server/manage.py
 ```
+### Crontab Add and running
+```
+python3 server/manage.py crontab add
+python3 server/manage.py crontab show
+python3 server/manage.py crontab remove
+```
 
 ## Roadmap
 Pages can be scrape

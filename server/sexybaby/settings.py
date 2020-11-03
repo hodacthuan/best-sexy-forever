@@ -10,10 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+from dotenv import load_dotenv
+from pathlib import Path  # Python 3.6+ only
 import os
 import mongoengine
 from mongoengine import connect
 
+# Load env
+envPath = os.path.dirname(__file__)+'/../.'+'./devops'
+envFile = Path(envPath) / 'secrets.env'
+load_dotenv(dotenv_path=envFile)
+
+# Connect to MongoDB
 connect(
     host=os.environ['MONGODB_URL']
 )
@@ -42,7 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'www'
+    'www',
+    'django_crontab'
 ]
 
 MIDDLEWARE = [
@@ -132,4 +141,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
     '/www/static/',
+]
+
+CRONJOBS = [
+    ('* * * * *', 'sexybaby.cron.my_scheduled_job', '>> /tmp/scheduled_job.log')
 ]
