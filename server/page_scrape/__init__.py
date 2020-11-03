@@ -1,1 +1,2 @@
-import page_scrape.kissgoddess
+# import page_scrape.kissgoddess
+import commons
