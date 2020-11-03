@@ -4,7 +4,7 @@ import time
 import random
 import requests
 from bs4 import BeautifulSoup
-from page_scrape.models import Album
+from pageScrape.models import Album
 # https://www.digitalocean.com/community/tutorials/how-to-scrape-web-pages-with-beautiful-soup-and-python-3
 
 

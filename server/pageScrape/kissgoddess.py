@@ -6,12 +6,12 @@ import time
 import random
 import requests
 from bs4 import BeautifulSoup, Tag, NavigableString
-from page_scrape.models import Album
+from pageScrape.models import Album
 import requests
 import logging
 import mongoengine
-import page_scrape
-from page_scrape.commons import dataLogging, downloadAndSave, uploadToAws, deleteTempPath, getAlbumId, getImgId, deleteAwsS3Dir, debug
+import pageScrape
+from pageScrape.commons import dataLogging, downloadAndSave, uploadToAws, deleteTempPath, getAlbumId, getImgId, deleteAwsS3Dir, debug
 
 originUrl = 'https://kissgoddess.com'
 source = 'kissgoddess'
@@ -200,7 +200,10 @@ def scrapeEachGallery():
         scrapeEachAlbum(album)
 
 
-scrapeEachAlbum({
-    'url': 'https://kissgoddess.com/album/34025.html'
-})
+def main():
+    scrapeEachAlbum({
+        'url': 'https://kissgoddess.com/album/34171.html'
+    })
+
+
 # scrapeEachGallery()

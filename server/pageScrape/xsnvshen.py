@@ -4,7 +4,7 @@ import time
 import random
 import requests
 from bs4 import BeautifulSoup
-from page_scrape.models import Album
+from pageScrape.models import Album
 import requests
 
 originUrl = "https://www.xsnvshen.com/"

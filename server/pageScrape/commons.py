@@ -1,6 +1,6 @@
 import logging
 import mongoengine
-import page_scrape
+import pageScrape
 import boto3
 import uuid
 import time
@@ -27,12 +27,12 @@ def dataLogging(obj, prefix=''):
     for key in obj:
         if isinstance(
                 obj[key], mongoengine.base.datastructures.BaseList) and len(obj[key]) > 0:
-            if isinstance(obj[key][0], page_scrape.models.ImageInfo):
+            if isinstance(obj[key][0], pageScrape.models.ImageInfo):
                 for k in range(len(obj[key])):
                     dataLogging(obj[key][k], ' '+key,)
             else:
                 print(prefix, key, ':', obj[key])
-        elif isinstance(obj[key], page_scrape.models.ImageInfo):
+        elif isinstance(obj[key], pageScrape.models.ImageInfo):
             dataLogging(obj[key], ' '+key)
         else:
             print(prefix, key, ':', obj[key])

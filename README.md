@@ -1,4 +1,3 @@
-
 ## Installation
 
 ### Install tools needed
@@ -23,6 +22,7 @@ sudo apt install -y python3-pip
 pip3 install -r ./server/requirements.txt
 python3 server/manage.py
 ```
+
 ### Crontab Add and running
 ```
 python3 server/manage.py crontab add
