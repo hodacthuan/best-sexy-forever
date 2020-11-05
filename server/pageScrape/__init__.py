@@ -1,4 +1,4 @@
 import pageScrape.kissgoddess
 import commons
 
-pageScrape.kissgoddess.main()
+# pageScrape.kissgoddess.main()

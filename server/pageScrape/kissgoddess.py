@@ -17,7 +17,6 @@ originUrl = 'https://kissgoddess.com'
 source = 'kissgoddess'
 
 coloredlogs.install()
-logging.info('Start to scrape: %s' % (source))
 
 
 def scrapeListofAlbum(listUrl):
@@ -201,9 +200,9 @@ def scrapeEachGallery():
 
 
 def main():
+    logging.info('Start to scrape: %s' % (source))
+
     scrapeEachAlbum({
         'url': 'https://kissgoddess.com/album/34171.html'
     })
-
-
-# scrapeEachGallery()
+    scrapeEachGallery()
