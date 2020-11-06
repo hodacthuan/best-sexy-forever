@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 from pathlib import Path  # Python 3.6+ only
 import os
 import mongoengine
-from mongoengine import connect
 
 # Load env
 envPath = os.path.dirname(__file__)+'/../.'+'./devops'
@@ -22,7 +21,7 @@ envFile = Path(envPath) / 'secrets.env'
 load_dotenv(dotenv_path=envFile)
 
 # Connect to MongoDB
-connect(
+mongoengine.connect(
     host=os.environ['MONGODB_URL']
 )
 
@@ -38,8 +37,11 @@ SECRET_KEY = '4(@ih=e%$=7jefxi^(m@(rg_q65z^s1b)qbwr^b83qtxq2&70-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+if os.environ.get('DEPLOY_ENV') is not None:
+    if os.environ['TELEGRAM_TOKEN'] == 'prod':
+        DEBUG = False
 
+ALLOWED_HOSTS = ['.localhost']
 
 # Application definition
 
