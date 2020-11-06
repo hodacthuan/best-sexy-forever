@@ -43,9 +43,9 @@ def scrapeListofAlbum(listUrl):
 
             if (albumUrl):
                 album = {
-                    'url': albumUrl,
+                    'albumSourceUrl': albumUrl,
                     'thumbnail': {
-                        'sourceUrl': thnailUrl
+                        'imgSourceUrl': thnailUrl
                     }
                 }
 
@@ -68,7 +68,7 @@ def scrapeImgInPg(url, albumId):
         verify=True).text, 'html.parser')
 
     album = {}
-    album['title'] = html.find(
+    album['albumTitle'] = html.find(
         class_='td-post-header').find(class_='td-post-title').find(class_='entry-title').contents[0]
 
     imgLiHtml = html.find(class_='td-gallery-content').find_all('img')
@@ -85,8 +85,8 @@ def scrapeImgInPg(url, albumId):
 
             if uploaded:
                 imgObj = {}
-                imgObj['sourceUrl'] = imgUrl
-                imgObj['storePath'] = imgPath + '/' + imgFile
+                imgObj['imgSourceUrl'] = imgUrl
+                imgObj['imgStorePath'] = imgPath + '/' + imgFile
                 imgObjs.append(imgObj)
 
     album['images'] = imgObjs
@@ -119,17 +119,17 @@ def scrapeAllImgInAlbum(album):
     Returns:
         Object of image contain title and images scraped
     """
-    debug('Scrape images in url: %s' % (album['url']))
+    debug('Scrape images in url: %s' % (album['albumSourceUrl']))
 
-    pgAlbum = scrapeImgInPg(album['url'], '')
+    pgAlbum = scrapeImgInPg(album['albumSourceUrl'], '')
 
-    idFromSource = album['url'].split('/')[4].split('.')[0]
+    idFromSource = album['albumSourceUrl'].split('/')[4].split('.')[0]
     if idFromSource.isnumeric():
-        album['idFromSource'] = idFromSource
+        album['albumIdFromSource'] = idFromSource
 
     album['albumId'] = getAlbumId()
     album['images'] = []
-    album['title'] = pgAlbum['title']
+    album['albumTitle'] = pgAlbum['albumTitle']
     if 'tags' in pgAlbum:
         album['tags'] = pgAlbum['tags']
     album['modelName'] = pgAlbum['modelName']
@@ -138,7 +138,8 @@ def scrapeAllImgInAlbum(album):
     for x in range(pgAlbum['totalPg']):
         time.sleep(0.2)
 
-        pageUrl = album['url'].split('.html')[0] + '_' + str(x + 1) + '.html'
+        pageUrl = album['albumSourceUrl'].split(
+            '.html')[0] + '_' + str(x + 1) + '.html'
         pgAlbum = scrapeImgInPg(pageUrl, album['albumId'])
         for imgObj in pgAlbum['images']:
             album['images'].append(imgObj)
@@ -161,17 +162,18 @@ def scrapeEachAlbum(album):
     Returns:
         None
     """
-    albumInDB = Album.objects(url=album['url'], source=source)
+    albumInDB = Album.objects(
+        albumSourceUrl=album['albumSourceUrl'], albumSource=source)
 
     if (len(albumInDB) == 0):
 
         album = scrapeAllImgInAlbum(album)
         debug(album)
         try:
-            album = Album(title=album['title'],
-                          source=source,
-                          url=album['url'],
-                          idFromSource=album['idFromSource'],
+            album = Album(albumTitle=album['albumTitle'],
+                          albumSource=source,
+                          albumSourceUrl=album['albumSourceUrl'],
+                          albumIdFromSource=album['albumIdFromSource'],
                           tags=album['tags'],
                           albumId=album['albumId'],
                           modelName=album['modelName'],
@@ -193,7 +195,7 @@ def scrapeEachGallery():
     albumObjLi = scrapeListofAlbum(listUrl)
 
     for album in albumObjLi:
-        if (album['url'] != 'https://kissgoddess.com/album/34143.html'):
+        if (album['albumSourceUrl'] != 'https://kissgoddess.com/album/34143.html'):
             continue
 
         scrapeEachAlbum(album)
@@ -203,6 +205,6 @@ def main():
     logging.info('Start to scrape: %s' % (source))
 
     scrapeEachAlbum({
-        'url': 'https://kissgoddess.com/album/34171.html'
+        'albumSourceUrl': 'https://kissgoddess.com/album/34171.html'
     })
-    scrapeEachGallery()
+    # scrapeEachGallery()

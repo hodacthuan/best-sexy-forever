@@ -5,14 +5,14 @@ import datetime
 
 class ImageInfo(EmbeddedDocument):
     imgIsPublic = BooleanField(default=True)
-    sourceUrl = StringField(required=True)
-    storePath = StringField(required=True)
+    imgSourceUrl = StringField(required=True)
+    imgStorePath = StringField(required=True)
     meta = {'collection': 'album', 'strict': False}
 
 
 class ModelInfo(EmbeddedDocument):
     modelIsPublic = BooleanField(default=True)
-    sourceUrl = StringField(required=True)
+    modelSourceUrl = StringField(required=True)
     imagePath = StringField()
     name = StringField(unique=True)
     displayName = StringField()
@@ -28,12 +28,12 @@ class ModelInfo(EmbeddedDocument):
 
 class Album(Document):
     objects = QuerySetManager()
-    title = StringField(required=True)
+    albumTitle = StringField(required=True)
     albumIsPublic = BooleanField(default=True)
-    source = StringField(required=True)
-    idFromSource = StringField(required=True)
+    albumSource = StringField(required=True)
+    albumIdFromSource = StringField(required=True)
     albumId = StringField(required=True)
-    url = StringField(required=True, unique=True)
+    albumSourceUrl = StringField(required=True, unique=True)
     thumbnail = EmbeddedDocumentField(ImageInfo)
     modelName = StringField()
     modelDisplayName = StringField()

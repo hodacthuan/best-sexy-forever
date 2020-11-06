@@ -13,14 +13,14 @@ source = 'mrcong'
 
 
 def scrapeEachPost(url, thumbnail):
-    postFoundInDB = Album.objects(url=url, source=source)
+    postFoundInDB = Album.objects(url=url, albumSource=source)
     if ~(len(postFoundInDB) == 0):
         time.sleep(5)
         html = BeautifulSoup(requests.get(url).text, 'html.parser')
-        title = html.find(
+        albumTitle = html.find(
             class_='post-title').find('span').contents[0].split('(')[0]
 
-        print('Scrape post:', title)
+        print('Scrape post:', albumTitle)
         paginationHtml = html.find(
             class_='post-inner').find(class_='entry').find(class_='page-link').find_all('a')
         paginationUrlList = []
@@ -43,7 +43,7 @@ def scrapeEachPost(url, thumbnail):
                 images.append({"sourceUrl": imagelink, "publish": False})
 
         print('Total images', len(images))
-        post = Album(title=title, source=source, url=url,
+        post = Album(albumTitle=albumTitle, source=source, url=url,
                      images=images, thumbnail=thumbnail)
         post.save()
 

@@ -13,13 +13,13 @@ def index(request):
 def album(request, albumId):
     print('albumId', albumId)
     album = Album.objects(id=albumId)[0]
-    print(album.thumbnail.sourceUrl)
+    print(album.thumbnail.imgSourceUrl)
     album.thumbnail.url = constants.BUCKET_PUBLIC_URL + \
-        album.thumbnail.storePath
+        album.thumbnail.imgStorePath
     for index in range(len(album.images)):
 
         album.images[index].url = constants.BUCKET_PUBLIC_URL + \
-            album.images[index].storePath
+            album.images[index].imgStorePath
 
     print(album.images[1].url)
     # dataLogging(album, '')
