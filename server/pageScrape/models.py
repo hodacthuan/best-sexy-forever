@@ -1,9 +1,11 @@
 from django.db import models
-from mongoengine import BooleanField, StringField, QuerySetManager, DateTimeField, ListField, EmbeddedDocumentField, EmbeddedDocument, Document
+import mongoengine
+from mongoengine import BooleanField, StringField, QuerySetManager, DateTimeField, ListField, EmbeddedDocumentField, EmbeddedDocument, Document, IntField
 import datetime
 
 
 class ImageInfo(EmbeddedDocument):
+    imgNo = IntField(required=True)
     imgIsPublic = BooleanField(default=True)
     imgSourceUrl = StringField(required=True)
     imgStorePath = StringField(required=True)

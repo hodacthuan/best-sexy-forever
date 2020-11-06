@@ -142,6 +142,7 @@ def scrapeAllImgInAlbum(album):
             '.html')[0] + '_' + str(x + 1) + '.html'
         pgAlbum = scrapeImgInPg(pageUrl, album['albumId'])
         for imgObj in pgAlbum['albumImages']:
+            imgObj['imgNo'] = len(album['albumImages']) + 1
             album['albumImages'].append(imgObj)
 
     if (not 'albumThumbnail' in album):
