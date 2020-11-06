@@ -38,7 +38,7 @@ SECRET_KEY = '4(@ih=e%$=7jefxi^(m@(rg_q65z^s1b)qbwr^b83qtxq2&70-'
 DEBUG = True
 
 if os.environ.get('DEPLOY_ENV') is not None:
-    if os.environ['TELEGRAM_TOKEN'] == 'prod':
+    if os.environ['DEPLOY_ENV'] == 'prod':
         DEBUG = False
 
 ALLOWED_HOSTS = ['.localhost']
