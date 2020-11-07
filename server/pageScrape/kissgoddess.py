@@ -12,7 +12,8 @@ import logging
 import mongoengine
 import pageScrape
 from slugify import slugify
-from pageScrape.commons import dataLogging, downloadAndSave, uploadToAws, deleteTempPath, getAlbumId, getImgId, deleteAwsS3Dir, debug
+from sexybaby.commons import dataLogging, downloadAndSaveToS3, deleteTempPath, getAlbumId, getImgId, debug
+from sexybaby.aws import deleteAwsS3Dir, uploadToAws
 
 originUrl = 'https://kissgoddess.com'
 source = 'kissgoddess'
@@ -76,7 +77,7 @@ def scrapeImgInPg(url, albumId):
             imgFile = getImgId() + '.' + \
                 imgUrl.split('.')[len(imgUrl.split('.')) - 1]
 
-            uploaded = downloadAndSave(
+            uploaded = downloadAndSaveToS3(
                 imgUrl, imgPath, imgFile)
 
             if uploaded:

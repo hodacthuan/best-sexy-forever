@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from pageScrape.models import Album
 import pageScrape
-from pageScrape.commons import dataLogging
+from sexybaby.commons import dataLogging
 from sexybaby import constants
 import logging
 logger = logging.getLogger(__name__)

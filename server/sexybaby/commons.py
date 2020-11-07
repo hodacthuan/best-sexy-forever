@@ -1,3 +1,4 @@
+from .aws import uploadToAws
 from sexybaby import constants
 import logging
 import mongoengine
@@ -34,37 +35,7 @@ def dataLogging(obj, prefix=''):
             print(prefix, key, ':', obj[key])
 
 
-def deleteAwsS3Dir(s3FilePath):
-    try:
-        s3.delete_object(
-            Bucket=constants.AWS_BUCKET,
-            Key=s3FilePath
-        )
-
-        return True
-    except FileNotFoundError:
-        print("The file was not found")
-        return False
-    except NoCredentialsError:
-        print("Credentials not available")
-        return False
-
-
-def uploadToAws(filePath, s3FilePath):
-
-    try:
-        s3.upload_file(filePath, constants.AWS_BUCKET, s3FilePath, ExtraArgs={
-                       'ContentType': 'image/jpeg'})
-        return True
-    except FileNotFoundError:
-        print("The file was not found", filePath)
-        return False
-    except NoCredentialsError:
-        print("Credentials not available")
-        return False
-
-
-def downloadAndSave(url, filePath, fileName):
+def downloadAndSaveToS3(url, filePath, fileName):
 
     tempPath = '/tmp/' + filePath
     tempFile = '/tmp/' + filePath + '/' + fileName
