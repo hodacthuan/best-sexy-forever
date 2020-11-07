@@ -39,8 +39,6 @@ def scrapeListofAlbum(listUrl):
     for albumHtml in albumLiHtml:
         if isinstance(albumHtml.find('a'), Tag):
             albumUrl = originUrl + albumHtml.find('a').get('href')
-            thnailUrl = albumHtml.find(
-                'img', {'class': 'entry-thumb'}).get('data-original')
 
             if (albumUrl):
                 album = {
@@ -65,7 +63,7 @@ def scrapeImgInPg(url, albumId):
         url,
         verify=True).text, 'html.parser')
 
-    album = {}
+    album = dict()
     album['albumDisplayTitle'] = html.find(
         class_='td-post-header').find(class_='td-post-title').find(class_='entry-title').contents[0]
 
@@ -121,6 +119,8 @@ def scrapeAllImgInAlbum(album):
 
     pgAlbum = scrapeImgInPg(album['albumSourceUrl'], '')
 
+    album['albumSource'] = source
+
     idFromSource = album['albumSourceUrl'].split('/')[4].split('.')[0]
     if idFromSource.isnumeric():
         album['albumIdFromSource'] = idFromSource
@@ -172,19 +172,8 @@ def scrapeEachAlbum(album):
         album = scrapeAllImgInAlbum(album)
         debug(album)
         try:
-            album = Album(albumTitle=album['albumTitle'],
-                          albumDisplayTitle=album['albumDisplayTitle'],
-                          albumSource=source,
-                          albumSourceUrl=album['albumSourceUrl'],
-                          albumIdFromSource=album['albumIdFromSource'],
-                          albumTags=album['albumTags'],
-                          albumId=album['albumId'],
-                          modelName=album['modelName'],
-                          modelDisplayName=album['modelDisplayName'],
-                          albumImages=album['albumImages'],
-                          albumThumbnail=album['albumThumbnail'])
+            album = Album(**album).save()
 
-            album.save()
         except:
             debug('Delete album ' + album['albumId'])
             deleteAwsS3Dir('album/' + album['albumId'])
