@@ -1,3 +1,6 @@
+import re
+import os
+from django.views.static import serve
 from django.shortcuts import render
 from django.http import HttpResponse
 from pageScrape.models import Album
@@ -7,12 +10,18 @@ from sexybaby import constants
 import logging
 logger = logging.getLogger(__name__)
 
+IMAGE_STORAGE = os.path.join(os.path.dirname(__file__), '../storages/images/')
+
 
 def hello(request):
     return render(request, "hello.html")
 
 
-def album(request, albumTitle):
+def images(request, imagePath, imageFileName):
+    return serve(request, imageFileName, document_root=IMAGE_STORAGE+imagePath)
+
+
+def albums(request, albumTitle):
     album = Album.objects(albumTitle=albumTitle)[0]
     album.albumThumbnail.url = constants.BUCKET_PUBLIC_URL + \
         album.albumThumbnail.imgStorePath
