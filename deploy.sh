@@ -35,7 +35,7 @@ function upService() {
     docker-compose -f devops/docker-compose.yml down
 
     cp server/databases.sqlite3 server/tempDatabases.sqlite3
-    mkdir -p server/storages/images
+    mkdir -p server/tempStorages/images
 
     case "${DEPLOY_ENV}" in
     local)

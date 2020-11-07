@@ -10,7 +10,8 @@ from sexybaby import constants
 import logging
 logger = logging.getLogger(__name__)
 
-IMAGE_STORAGE = os.path.join(os.path.dirname(__file__), '../storages/images/')
+IMAGE_STORAGE = os.path.join(os.path.dirname(
+    __file__), '../tempStorages/images/')
 
 
 def hello(request):
