@@ -5,7 +5,7 @@ import datetime
 
 
 class ImageInfo(EmbeddedDocument):
-    imgNo = IntField(required=True)
+    imgNo = StringField(required=True)
     imgIsPublic = BooleanField(default=True)
     imgSourceUrl = StringField(required=True)
     imgStorePath = StringField(required=True)
