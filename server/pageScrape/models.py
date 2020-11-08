@@ -7,6 +7,10 @@ import datetime
 class ImageInfo(EmbeddedDocument):
     imgNo = StringField(required=True)
     imgIsPublic = BooleanField(default=True)
+    imgSize = IntField(required=True)
+    imgWidth = IntField(required=True)
+    imgHeight = IntField(required=True)
+    imgType = StringField(required=True)
     imgSourceUrl = StringField(required=True)
     imgStorePath = StringField(required=True)
     imgExtension = StringField(required=True)

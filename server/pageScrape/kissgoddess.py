@@ -2,8 +2,11 @@
 import coloredlogs
 import csv
 import uuid
+import os
 import time
 import random
+import imghdr
+from PIL import Image
 import requests
 from bs4 import BeautifulSoup, Tag, NavigableString
 from pageScrape.models import Album
@@ -14,6 +17,8 @@ import pageScrape
 from slugify import slugify
 from sexybaby.commons import dataLogging, downloadAndSaveToS3, deleteTempPath, getAlbumId, getImgId, debug
 from sexybaby.aws import deleteAwsS3Dir, uploadToAws
+import logging
+logger = logging.getLogger(__name__)
 
 originUrl = 'https://kissgoddess.com'
 source = 'kissgoddess'
@@ -76,12 +81,19 @@ def scrapeImgInPg(url, albumId):
             imgPath = 'album/' + albumId
             imgExtension = imgUrl.split('.')[len(imgUrl.split('.')) - 1]
             imgFile = getImgId() + '.' + imgExtension
+            imgTempFilePath = '/tmp/' + imgPath + '/' + imgFile
 
             uploaded = downloadAndSaveToS3(
                 imgUrl, imgPath, imgFile)
 
+            imgOpened = Image.open(imgTempFilePath)
+
             if uploaded:
                 imgObj = {}
+                imgObj['imgWidth'] = imgOpened.size[0]
+                imgObj['imgHeight'] = imgOpened.size[1]
+                imgObj['imgSize'] = os.path.getsize(imgTempFilePath)
+                imgObj['imgType'] = imghdr.what(imgTempFilePath)
                 imgObj['imgSourceUrl'] = imgUrl
                 imgObj['imgStorePath'] = imgPath + '/' + imgFile
                 imgObj['imgExtension'] = imgExtension
@@ -177,6 +189,7 @@ def scrapeEachAlbum(album):
             album = Album(**album).save()
 
         except:
+            logger.error('Cannot save to DB:' + album['albumSourceUrl'])
             debug('Delete album ' + album['albumId'])
             deleteAwsS3Dir('album/' + album['albumId'])
 
