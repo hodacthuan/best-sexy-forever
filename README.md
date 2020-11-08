@@ -35,19 +35,23 @@ python3 server/manage.py crontab remove
 
 ## Roadmap
 Pages can be scrape
-- https://kissgoddess.com/
-- https://hotgirl.biz/
-- https://www.nvshens.org/
-- https://www.depvailon.com/
-- http://www.wloob.com/
+- https://kissgoddess.com/      :956k
+- https://www.xiurenji.com/     :100k
+- https://hotgirl.biz/          :557k
+- https://www.nvshens.org/      :1000k
+- https://www.24tupian.org/     :880k
+- https://mrcong.com/           :381k
+- https://bestgirlsexy.com/     :Not enough
+- https://www.depvailon.com/    :Not enough
+- http://www.wloob.com/         :85k
 
 Pages for references
 - https://www.kindgirls.com/
 - https://www.instagram.com/s3xybabies/
 - http://s3xies.com/
-- loveygirl.cc
-- https://www.xsnvshen.com/
-- http://www.zjdtt.com/
+- loveygirl.cc                  :160k
+- https://www.xsnvshen.com/     :830k
+- http://www.zjdtt.com/         :Not enough
 
 ## Acknowledgements
 - https://www.digitalocean.com/community/tutorials/how-to-scrape-web-pages-with-beautiful-soup-and-python-3
