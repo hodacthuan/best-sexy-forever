@@ -38,12 +38,17 @@ Pages can be scrape
 - https://kissgoddess.com/      :956k
 - https://www.xiurenji.com/     :100k
 - https://hotgirl.biz/          :557k
+- https://www.v2ph.com/         :1200k
 - https://www.nvshens.org/      :1000k
+- https://www.hdleg.com/        :Buy images here
 - https://www.24tupian.org/     :880k
+- https://www.naixue.org/       :550k
 - https://mrcong.com/           :381k
 - https://bestgirlsexy.com/     :Not enough
 - https://www.depvailon.com/    :Not enough
 - http://www.wloob.com/         :85k
+- https://www.24cos.com/        :Not enough
+- http://asianboobsdaily.com/   :NOt enough
 
 Pages for references
 - https://www.kindgirls.com/
