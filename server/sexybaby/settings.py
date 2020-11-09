@@ -14,6 +14,8 @@ from dotenv import load_dotenv
 from pathlib import Path  # Python 3.6+ only
 import os
 import mongoengine
+import logging
+logger = logging.getLogger(__name__)
 
 # Load env
 envPath = os.path.dirname(__file__)+'/../.'+'./devops'
@@ -41,7 +43,11 @@ if os.environ.get('DEPLOY_ENV') is not None:
     if os.environ['DEPLOY_ENV'] == 'prod':
         DEBUG = False
 
-ALLOWED_HOSTS = ['.localhost']
+
+ALLOWED_HOSTS = ['.localhost' ]
+
+if os.environ.get('PROD_SERVER_HOST') is not None:
+    ALLOWED_HOSTS.append(os.environ.get('PROD_SERVER_HOST'))
 
 # Application definition
 
