@@ -71,11 +71,11 @@ def deleteTempPath(filePath):
         print("Error: %s - %s." % (e.filename, e.strerror))
 
 
-def getAlbumId():
+def getLongId():
     return str(uuid.uuid4())
 
 
-def getImgId():
+def getShortId():
     return str(uuid.uuid4()).split('-')[0]
 
 

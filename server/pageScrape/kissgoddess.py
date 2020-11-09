@@ -5,17 +5,18 @@ import uuid
 import os
 import time
 import random
+import json
 import imghdr
 from PIL import Image
 import requests
 from bs4 import BeautifulSoup, Tag, NavigableString
-from pageScrape.models import Album
+from pageScrape.models import Album, ModelInfo
 import requests
 import logging
 import mongoengine
 import pageScrape
 from slugify import slugify
-from sexybaby.commons import dataLogging, downloadAndSaveToS3, deleteTempPath, getAlbumId, getImgId, debug
+from sexybaby.commons import dataLogging, downloadAndSaveToS3, deleteTempPath, getLongId, getShortId, debug
 from sexybaby.aws import deleteAwsS3Dir, uploadToAws
 import logging
 logger = logging.getLogger(__name__)
@@ -80,7 +81,7 @@ def albumScrapeImageInPage(url, albumId):
         if imgUrl and (albumId is not None):
             imgPath = 'album/' + albumId
             imgExtension = imgUrl.split('.')[len(imgUrl.split('.')) - 1]
-            imgFile = getImgId() + '.' + imgExtension
+            imgFile = getShortId() + '.' + imgExtension
             imgTempFilePath = '/tmp/' + imgPath + '/' + imgFile
 
             uploaded = downloadAndSaveToS3(
@@ -137,7 +138,7 @@ def albumScrapeAllImageInAlbum(album):
     if idFromSource.isnumeric():
         album['albumIdFromSource'] = idFromSource
 
-    album['albumId'] = getAlbumId()
+    album['albumId'] = getLongId()
     album['albumImages'] = []
     album['albumDisplayTitle'] = pgAlbum['albumDisplayTitle']
     album['albumTitle'] = slugify(
@@ -183,7 +184,7 @@ def albumScrapeEachAlbum(album):
         album = albumScrapeAllImageInAlbum(album)
         debug(album)
         try:
-            album = Album(**album).save()
+            Album(**album).save()
 
         except:
             logger.error('Cannot save to DB:' + album['albumSourceUrl'])
@@ -192,6 +193,114 @@ def albumScrapeEachAlbum(album):
 
     else:
         dataLogging(albumInDB[0], '')
+
+
+def modelScrapeAllModelsInfo(modelUrl):
+    """Scrape, save all info of model to S3 and Mongo DB
+    Args:
+        modelsUrl
+    Returns:
+        None
+    """
+
+    modelInDB = ModelInfo.objects(
+        modelSourceUrl=modelUrl, modelSource=source)
+
+    if ~(len(modelInDB) == 0):
+        return
+
+    html = BeautifulSoup(requests.get(
+        modelUrl,
+        verify=True).text, 'html.parser')
+    # print(html)
+    model = {}
+    model['modelSourceUrl'] = modelUrl
+    model['modelIsPublic'] = False
+    model['modelSource'] = source
+    model['modelName'] = modelUrl.split(
+        '/')[len(modelUrl.split('/'))-1].split('.')[0]
+    model['modelDisplayName'] = html.find(
+        class_='person-name').contents[0]
+
+    model['modelProfession'] = html.find(
+        class_='person-profession').contents[0]
+
+    articles = html.find('article"')
+
+    model['modelAbout'] = []
+    for article in articles:
+        if (article.find(class_='td-pulldown-size')):
+            title = article.find(class_='td-pulldown-size').contents[0]
+
+            if title == 'Height & Measurements':
+                model['modelHeightMeasurements'] = article.find(
+                    'p').contents[0]
+
+            if title == 'About':
+                about = article.find('p').find('p').contents[0]
+                model['modelAbout'].append(about)
+
+            if title == 'Before Fame':
+                about = article.find('p').contents[0]
+                model['modelAbout'].append(about)
+
+    model['modelImage'] = dict()
+    model['modelImage']['imgSourceUrl'] = html.find(
+        class_='td-post-content').find(
+        class_='td-post-featured-image').find('a').get('href')
+    model['modelImage']['imgIsPublic'] = False
+
+    personalInfos = html.find(class_='person-pro')
+
+    for personalInfo in personalInfos:
+        title = personalInfo.find('h6').contents[0]
+
+        if title == 'BIRTHDAY':
+            model['modelBirthday'] = personalInfo.find(
+                'span').contents[0]
+
+        if title == 'BIRTHPLACE':
+            model['modelBirthPlace'] = personalInfo.find(
+                'span').contents[0]
+        if title == 'AGE':
+            model['modelAge'] = personalInfo.find(
+                'span').contents[0]
+        if title == 'BIRTH SIGN':
+            model['modelSign'] = personalInfo.find(
+                'span').contents[0]
+        if title == 'HOBBY':
+            model['modelHobbies'] = []
+            model['modelHobbies'].append(personalInfo.find(
+                'span').contents[0])
+
+    modelId = getLongId()
+    imgUrl = model['modelImage']['imgSourceUrl']
+    imgPath = 'model/' + modelId
+    imgExtension = imgUrl.split('.')[len(imgUrl.split('.')) - 1]
+    imgFile = getShortId() + '.' + imgExtension
+    imgTempFilePath = '/tmp/' + imgPath + '/' + imgFile
+
+    uploaded = downloadAndSaveToS3(
+        imgUrl, imgPath, imgFile)
+
+    imgOpened = Image.open(imgTempFilePath)
+
+    if uploaded:
+        model['modelImage']['imgNo'] = '001'
+        model['modelImage']['imgWidth'] = imgOpened.size[0]
+        model['modelImage']['imgHeight'] = imgOpened.size[1]
+        model['modelImage']['imgSize'] = os.path.getsize(imgTempFilePath)
+        model['modelImage']['imgType'] = imghdr.what(imgTempFilePath)
+        model['modelImage']['imgSourceUrl'] = imgUrl
+        model['modelImage']['imgStorePath'] = imgPath + '/' + imgFile
+        model['modelImage']['imgExtension'] = imgExtension
+
+    print(model)
+    try:
+        ModelInfo(**model).save()
+
+    except (RuntimeError, TypeError, NameError):
+        logger.error('Cannot save to DB:')
 
 
 def scrapeEachGallery():
@@ -211,4 +320,5 @@ def main():
     albumScrapeEachAlbum({
         'albumSourceUrl': 'https://kissgoddess.com/album/34171.html'
     })
+    modelScrapeAllModelsInfo('https://kissgoddess.com/people/xie-zhi-xin.html')
     # scrapeEachGallery()

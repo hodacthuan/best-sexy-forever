@@ -18,22 +18,27 @@ class ImageInfo(EmbeddedDocument):
     meta = {'collection': 'images', 'strict': False}
 
 
-class ModelInfo(EmbeddedDocument):
+class ModelInfo(Document):
+    objects = QuerySetManager()
     modelIsPublic = BooleanField(default=True)
+    modelSource = StringField(required=True)
     modelName = StringField(unique=True)
-    modelCountry = StringField(unique=True)
-    modelAbout = ListField(StringField())
     modelDisplayName = StringField()
+    modelNativeName = StringField()
+    modelProfession = StringField()
+    modelReputation = IntField()
+    modelRanking = IntField()
+    modelCountry = StringField()
+    modelAbout = ListField(StringField())
     modelType = StringField()
     modelSourceUrl = StringField(required=True)
     modelImage = EmbeddedDocumentField(ImageInfo)
     modelBirthday = StringField()
     modelBirthPlace = StringField()
     modelAge = StringField()
-    modelNativeName = StringField()
+    modelSign = StringField()
     modelHobbies = ListField(StringField())
     modelHeightMeasurements = StringField()
-    modelAbout = StringField()
     modelSocialInstagram = StringField()
     modelSocialFacebook = StringField()
     modelTags = ListField(StringField(max_length=2000))
