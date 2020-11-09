@@ -26,7 +26,7 @@ source = 'kissgoddess'
 coloredlogs.install()
 
 
-def scrapeListofAlbum(listUrl):
+def albumScrapeListofAlbum(listUrl):
     """Scrape the gallery page and return list of album
     Args:
         None.
@@ -56,7 +56,7 @@ def scrapeListofAlbum(listUrl):
     return albumLi
 
 
-def scrapeImgInPg(url, albumId):
+def albumScrapeImageInPage(url, albumId):
     """Scrape all images inside the url of album and return list of image object
     Args:
         url (str): url of album
@@ -77,7 +77,7 @@ def scrapeImgInPg(url, albumId):
     imgObjs = []
     for imgHtml in imgLiHtml:
         imgUrl = imgHtml.get('src')
-        if imgUrl and (len(albumId) > 0):
+        if imgUrl and (albumId is not None):
             imgPath = 'album/' + albumId
             imgExtension = imgUrl.split('.')[len(imgUrl.split('.')) - 1]
             imgFile = getImgId() + '.' + imgExtension
@@ -115,13 +115,11 @@ def scrapeImgInPg(url, albumId):
 
     album['modelName'] = html.find(
         class_='td-related-person').find(class_='td-related-peron-thumb').find('a').get('href').split('/')[2].split('.')[0]
-    album['modelDisplayName'] = html.find(
-        class_='td-related-person').find(class_='td-related-peron-thumb').find('a').get('title')
 
     return album
 
 
-def scrapeAllImgInAlbum(album):
+def albumScrapeAllImageInAlbum(album):
     """Scrape all images in album and return list of image object
     Args:
         url(str): url of album
@@ -131,7 +129,7 @@ def scrapeAllImgInAlbum(album):
     """
     debug('Scrape images in url: %s' % (album['albumSourceUrl']))
 
-    pgAlbum = scrapeImgInPg(album['albumSourceUrl'], '')
+    pgAlbum = albumScrapeImageInPage(album['albumSourceUrl'], None)
 
     album['albumSource'] = source
 
@@ -148,14 +146,13 @@ def scrapeAllImgInAlbum(album):
     if 'albumTags' in pgAlbum:
         album['albumTags'] = pgAlbum['albumTags']
     album['modelName'] = pgAlbum['modelName']
-    album['modelDisplayName'] = pgAlbum['modelDisplayName']
 
     for x in range(pgAlbum['totalPg']):
         time.sleep(0.2)
 
         pageUrl = album['albumSourceUrl'].split(
             '.html')[0] + '_' + str(x + 1) + '.html'
-        pgAlbum = scrapeImgInPg(pageUrl, album['albumId'])
+        pgAlbum = albumScrapeImageInPage(pageUrl, album['albumId'])
         for imgObj in pgAlbum['albumImages']:
             imgObj['imgNo'] = format(len(album['albumImages']) + 1, '03d')
             album['albumImages'].append(imgObj)
@@ -171,7 +168,7 @@ def scrapeAllImgInAlbum(album):
     return album
 
 
-def scrapeEachAlbum(album):
+def albumScrapeEachAlbum(album):
     """Scrape, save all images of album to S3 and Mongo DB
     Args:
         album (dict)
@@ -183,7 +180,7 @@ def scrapeEachAlbum(album):
 
     if (len(albumInDB) == 0):
 
-        album = scrapeAllImgInAlbum(album)
+        album = albumScrapeAllImageInAlbum(album)
         debug(album)
         try:
             album = Album(**album).save()
@@ -199,19 +196,19 @@ def scrapeEachAlbum(album):
 
 def scrapeEachGallery():
     listUrl = originUrl + '/gallery/'
-    albumObjLi = scrapeListofAlbum(listUrl)
+    albumObjLi = albumScrapeListofAlbum(listUrl)
 
     for album in albumObjLi:
         if (album['albumSourceUrl'] != 'https://kissgoddess.com/album/34143.html'):
             continue
 
-        scrapeEachAlbum(album)
+        albumScrapeEachAlbum(album)
 
 
 def main():
     logging.info('Start to scrape: %s' % (source))
 
-    scrapeEachAlbum({
+    albumScrapeEachAlbum({
         'albumSourceUrl': 'https://kissgoddess.com/album/34171.html'
     })
     # scrapeEachGallery()
