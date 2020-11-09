@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   nginx:
-    image: sg-nginx:1.0
+    image: sg-nginx-image:1.0
     build:
       context: ..
       dockerfile: devops/Dockerfile-nginx
@@ -22,7 +22,7 @@ services:
   server:
     restart: always
     stdin_open: true
-    image: sg-server:1.0
+    image: sg-server-image:1.0
     build:
       context: ..
       dockerfile: devops/Dockerfile-server
