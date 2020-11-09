@@ -35,30 +35,30 @@ python3 server/manage.py crontab remove
 
 ## Roadmap
 Pages can be scrape
-- https://kissgoddess.com/      :956k
-- https://www.xiurenji.com/     :100k
-- https://hotgirl.biz/          :557k
-- https://www.v2ph.com/         :1200k
-- https://www.nvshens.org/      :1000k
-- https://www.hdleg.com/        :Buy images here
-- https://www.24tupian.org/     :880k
-- https://www.naixue.org/       :550k
-- https://mrcong.com/           :381k
-- https://bestgirlsexy.com/     :Not enough
-- https://www.depvailon.com/    :Not enough
-- http://www.wloob.com/         :85k
-- https://www.24cos.com/        :Not enough
-- http://asianboobsdaily.com/   :NOt enough
-- https://www.youhuoxz.com/     :72k
-- https://www.mn5.cc/           :190k
 
-Pages for references
-- https://www.kindgirls.com/
-- https://www.instagram.com/s3xybabies/
-- http://s3xies.com/
-- loveygirl.cc                  :160k
-- https://www.xsnvshen.com/     :830k Error 1020 Access denied
-- http://www.zjdtt.com/         :Not enough
+| Website   |      Are      |  Notes |
+|---------- |-------------: |:------|
+|https://kissgoddess.com/     |  956k       | In progress
+|https://www.xiurenji.com/     |100k
+|https://hotgirl.biz/          |557k
+|https://www.v2ph.com/         |1200k
+|https://www.nvshens.org/      |1000k
+|https://www.hdleg.com/        |            |Buy images here
+|https://www.24tupian.org/     |880k
+|https://www.naixue.org/       |550k
+|https://mrcong.com/           |381k
+|https://bestgirlsexy.com/     |Not enough
+|https://www.depvailon.com/    |Not enough
+|http://www.wloob.com/         |85k
+|https://www.24cos.com/        |Not enough
+|http://asianboobsdaily.com/   |NOt enough
+|https://www.youhuoxz.com/     |72k
+|https://www.mn5.cc/           |190k
+|https://www.kindgirls.com/    |5200k
+|http://s3xies.com/
+|http://loveygirl.cc           |160k
+|https://www.xsnvshen.com/     |830k        |Error 1020 Access denied
+|http://www.zjdtt.com/         |Not enough
 
 ## Acknowledgements
 - https://www.digitalocean.com/community/tutorials/how-to-scrape-web-pages-with-beautiful-soup-and-python-3
