@@ -47,7 +47,7 @@ if os.environ.get('DEPLOY_ENV') is not None:
 ALLOWED_HOSTS = ['.localhost' ]
 
 if os.environ.get('PROD_SERVER_HOST') is not None:
-    ALLOWED_HOSTS.append(os.environ.get('PROD_SERVER_HOST'))
+    ALLOWED_HOSTS.append(os.environ('PROD_SERVER_HOST'))
 
 # Application definition
 
