@@ -3,6 +3,7 @@
 ### Install tools needed
 ```
 git clone https://github.com/hodacthuan/linux-tools.git
+linux-tools/cli-tools/awscli.sh
 linux-tools/docker/index.sh
 ```
 ### Up database MongoDB
