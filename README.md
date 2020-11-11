@@ -56,7 +56,10 @@ nano devops/secrets.env
 ```
 sudo apt install -y python3-pip
 pip3 install -r ./server/requirements.txt
-python3 server/manage.py scrape
+
+python3 server/manage.py scrape kissgoddess
+python3 server/manage.py scrape hotgirlbiz
+
 ```
 ### Crontab Add and running
 ```

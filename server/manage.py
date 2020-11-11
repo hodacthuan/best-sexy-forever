@@ -22,7 +22,10 @@ if __name__ == '__main__':
 
     params = sys.argv
     if params[1] == 'scrape':
-        from pageScrape import kissgoddess
-        kissgoddess.main()
-
+        if params[2] == 'kissgoddess':
+            from pageScrape import kissgoddess
+            kissgoddess.main()
+        if params[2] == 'hotgirlbiz':
+            from pageScrape import hotgirlbiz
+            hotgirlbiz.main()
     main()

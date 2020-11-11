@@ -44,9 +44,15 @@ def downloadAndSaveToS3(url, filePath, fileName):
     if not(path.isdir(tempPath)):
         os.makedirs(tempPath)
     try:
-        urllib.request.urlretrieve(url, tempFile)
+
+        opener = urllib.request.URLopener()
+        opener.addheader(
+            'User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36')
+        opener.retrieve(url, tempFile)
+        # urllib.request.urlretrieve(url, tempFile)
+
     except OSError as e:
-        print("Error: %s - %s." % (e.filename, e.strerror))
+        print("Error: %s - %s." % (e.filename, e))
 
     return uploadToAws(
         tempFile, filePath + '/' + fileName)
