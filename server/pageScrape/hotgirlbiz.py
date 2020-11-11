@@ -79,61 +79,61 @@ def albumScrapeAllImageInAlbum(album):
 
     logger.info('Scrape images in album: %s' % (album['albumSourceUrl']))
 
-    html = BeautifulSoup(requests.get(
-        album['albumSourceUrl'],
-        verify=True).text, 'html.parser')
-
-    album['albumSource'] = source
-
-    album['albumDisplayTitle'] = html.find(
-        class_='single_post').find(class_='single-title').contents[0]
-
-    album['albumTitle'] = slugify(
-        album['albumDisplayTitle'], to_lower=True)
-
-    album['albumUpdatedDate'] = html.find(
-        class_='single_post').find(class_='thetime').find('span').contents[0]
-
-    album['albumTags'] = []
-    tagsHtml = html.find(
-        class_='single_post').find(class_='tags').find_all('a')
-    for tagHtml in tagsHtml:
-        album['albumTags'].append(tagHtml.contents[0])
-
-    album['albumCategories'] = []
-    categoriesText = html.find(
-        class_='single_post').find(class_='thecategory').contents[0]
-    album['albumCategories'] = (categoriesText.split(','))
-
-    album['albumId'] = getLongId()
-
-    imgUrls = []
-    imgUrls.append(album['albumThumbnail'][0])
-
-    album['albumImages'] = []
-    imagesHtml = html.find(
-        class_='post-single-content').find(class_='thecontent').find('p').find_all('a')
-    for imageHtml in imagesHtml:
-        imgUrls.append(imageHtml.get('href'))
-
-    for index in range(len(imgUrls)):
-        if (index):
-            imgPath = 'album/' + album['albumId']
-            imgExtension = imgUrls[index].split(
-                '.')[len(imgUrls[index].split('.')) - 1]
-            imgNo = format(index, '03d')
-            imgFile = imgNo + '.' + imgExtension
-
-            uploaded = downloadAndSaveToS3(
-                imgUrls[index], imgPath, imgFile)
-
-            if uploaded:
-                if imgNo == '001':
-                    album['albumThumbnail'] = ['001']
-                else:
-                    album['albumImages'].append(imgNo)
-
     try:
+        html = BeautifulSoup(requests.get(
+            album['albumSourceUrl'],
+            verify=True).text, 'html.parser')
+
+        album['albumSource'] = source
+
+        album['albumDisplayTitle'] = html.find(
+            class_='single_post').find(class_='single-title').contents[0]
+
+        album['albumTitle'] = slugify(
+            album['albumDisplayTitle'], to_lower=True)
+
+        album['albumUpdatedDate'] = html.find(
+            class_='single_post').find(class_='thetime').find('span').contents[0]
+
+        album['albumTags'] = []
+        tagsHtml = html.find(
+            class_='single_post').find(class_='tags').find_all('a')
+        for tagHtml in tagsHtml:
+            album['albumTags'].append(tagHtml.contents[0])
+
+        album['albumCategories'] = []
+        categoriesText = html.find(
+            class_='single_post').find(class_='thecategory').contents[0]
+        album['albumCategories'] = (categoriesText.split(','))
+
+        album['albumId'] = getLongId()
+
+        imgUrls = []
+        imgUrls.append(album['albumThumbnail'][0])
+
+        album['albumImages'] = []
+        imagesHtml = html.find(
+            class_='post-single-content').find(class_='thecontent').find('p').find_all('a')
+        for imageHtml in imagesHtml:
+            imgUrls.append(imageHtml.get('href'))
+
+        for index in range(len(imgUrls)):
+            if (index):
+                imgPath = 'album/' + album['albumId']
+                imgExtension = imgUrls[index].split(
+                    '.')[len(imgUrls[index].split('.')) - 1]
+                imgNo = format(index, '03d')
+                imgFile = imgNo + '.' + imgExtension
+
+                uploaded = downloadAndSaveToS3(
+                    imgUrls[index], imgPath, imgFile)
+
+                if uploaded:
+                    if imgNo == '001':
+                        album['albumThumbnail'] = ['001']
+                    else:
+                        album['albumImages'].append(imgNo)
+
         Album(**album).save()
 
     except:
