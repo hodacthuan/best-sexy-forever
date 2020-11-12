@@ -156,17 +156,19 @@ def albumScrapeAllImageInAlbum(album):
     logger.info(album)
     deleteTempPath('album/' + album['albumId'])
 
+
 def deleteAllImageSizeIsZeroInDBAndS3():
     albumInDB = Album.objects(albumSource=source)
     for album in albumInDB:
         for imageIndex in album['albumImages']:
-            imageS3Path = 'album/' + album['albumId'] + '/' + imageIndex + '.jpg'
+            imageS3Path = 'album/' + \
+                album['albumId'] + '/' + imageIndex + '.jpg'
             fileSize = aws.getObjectSize(imageS3Path)
-            
+
             if fileSize == 0:
                 # Delete in S3
                 logger.info('Delete object: %s' % (imageS3Path))
-                deleted =  aws.deleteAwsS3Object(imageS3Path)
+                deleted = aws.deleteAwsS3Object(imageS3Path)
 
                 if deleted:
                     logger.info('Delete successfully: %s' % (imageS3Path))
@@ -175,9 +177,12 @@ def deleteAllImageSizeIsZeroInDBAndS3():
                 newAlbumImages = album['albumImages']
                 newAlbumImages.remove(imageIndex)
                 logger.info('New album images array: %s' % (newAlbumImages))
-                Album.objects(albumSource=source,albumId=album['albumId']).update_one(set__albumImages=newAlbumImages)
-                albumUpdated = Album.objects(albumSource=source,albumId=album['albumId'])
-                logger.info('Album images updated: %s' % (albumUpdated[0]['albumImages']))
+                Album.objects(albumSource=source, albumId=album['albumId']).update_one(
+                    set__albumImages=newAlbumImages)
+                albumUpdated = Album.objects(
+                    albumSource=source, albumId=album['albumId'])
+                logger.info('Album images updated: %s' %
+                            (albumUpdated[0]['albumImages']))
 
 
 def deleteAlbumExistOnS3ButNotInDB():
@@ -191,7 +196,6 @@ def deleteAlbumExistOnS3ButNotInDB():
             aws.deleteAwsS3Dir(albumS3Path)
 
 
-            
 def main():
     logger.info('Start to scrape: %s' % (source))
 
@@ -206,7 +210,7 @@ def main():
 
     if constants.DEPLOY_ENV == 'local':
         # deleteAllImageSizeIsZeroInDBAndS3()
-        # deleteAlbumExistOnS3ButNotInDB()    
+        # deleteAlbumExistOnS3ButNotInDB()
 
         album = {
             'albumSourceUrl': 'https://hotgirl.biz/xiuren-vol-2525-jiu-shi-a-zhu/',

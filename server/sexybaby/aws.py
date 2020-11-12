@@ -33,6 +33,7 @@ def deleteAwsS3Dir(s3FilePath):
         print("Credentials not available")
         return False
 
+
 def deleteAwsS3Object(s3FilePath):
     try:
         s3.delete_object(
@@ -62,8 +63,9 @@ def uploadToAws(filePath, s3FilePath):
         print("Credentials not available")
         return False
 
-def getObjectSize( s3FilePath):
-   
+
+def getObjectSize(s3FilePath):
+
     try:
         response = s3.head_object(
             Bucket=constants.AWS_BUCKET,
@@ -71,11 +73,12 @@ def getObjectSize( s3FilePath):
         size = response['ContentLength']
         return size
     except FileNotFoundError:
-        print("The file was not found", filePath)
+        print("The file was not found", s3FilePath)
         return False
     except NoCredentialsError:
         print("Credentials not available")
         return False
+
 
 def listAllObjectsInFolder(prefix):
     """Get a list of all keys in an S3 bucket."""
@@ -87,7 +90,7 @@ def listAllObjectsInFolder(prefix):
 
     while True:
         resp = s3.list_objects_v2(**kwargs)
-        
+
         for obj in resp['Contents']:
             keys.append(obj['Key'])
 
@@ -98,21 +101,22 @@ def listAllObjectsInFolder(prefix):
 
     return keys
 
+
 def listSubfolderInFolder(prefix):
     """Get a list of all keys in an S3 bucket."""
     keys = []
     kwargs = {
         'Bucket': constants.AWS_BUCKET,
         'Prefix': prefix,
-        'Delimiter':'/'
+        'Delimiter': '/'
     }
 
     while True:
         resp = s3.list_objects_v2(**kwargs)
-        
+
         for obj in resp.get('CommonPrefixes'):
             keys.append(obj.get('Prefix'))
-            
+
         try:
             kwargs['ContinuationToken'] = resp['NextContinuationToken']
         except KeyError:
