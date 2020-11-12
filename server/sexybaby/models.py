@@ -12,4 +12,4 @@ class AccessLogsModel(mongoengine.Document):
     referrer = mongoengine.StringField()
     timestamp = mongoengine.DateTimeField()
 
-    meta = {'collection': 'access_logs', 'strict': False}
+    meta = {'collection': 'accessLogs', 'strict': False}
