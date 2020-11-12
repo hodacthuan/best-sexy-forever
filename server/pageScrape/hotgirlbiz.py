@@ -11,8 +11,8 @@ import imghdr
 import datetime
 from PIL import Image
 import requests
-from bs4 import BeautifulSoup, Tag, NavigableString
-from pageScrape.models import Album, ModelInfo
+from bs4 import BeautifulSoup, NavigableString
+from pageScrape.models import Album, ModelInfo, Tag, Category
 import requests
 import logging
 from sexybaby import commons, aws
@@ -242,6 +242,43 @@ def deleteOldStorePathAlbum():
                             (album['albumId']))
 
 
+def correctAndSlugifyTag():
+    albumInDB = Album.objects(albumSource=source)
+    for album in albumInDB:
+        if 'albumTags' in album:
+            if len(album['albumTags']) > 0:
+                newTags = []
+                for tag in album['albumTags']:
+                    tagInDB = Tag.objects(tagTitle=tag)
+                    if not (len(tagInDB) > 0):
+                        newTag = commons.getTagTitle(tag)
+                        newTags.append(newTag)
+
+                if (len(album['albumTags']) == len(newTags)):
+                    print(album['albumTags'], newTags, album['albumSourceUrl'])
+                    Album.objects(albumSource=source, albumSourceUrl=album['albumSourceUrl']).update_one(
+                        set__albumTags=newTags)
+
+
+def correctAndSlugifyCategory():
+    albumInDB = Album.objects(albumSource=source)
+    for album in albumInDB:
+        if 'albumCategories' in album:
+            if len(album['albumCategories']) > 0:
+                newCategorys = []
+                for tag in album['albumCategories']:
+                    tagInDB = Category.objects(categoryTitle=tag)
+                    if not (len(tagInDB) > 0):
+                        newCategory = commons.getCategoryTitle(tag)
+                        newCategorys.append(newCategory)
+
+                if (len(album['albumCategories']) == len(newCategorys)):
+                    print(album['albumCategories'],
+                          newCategorys, album['albumSourceUrl'])
+                    Album.objects(albumSource=source, albumSourceUrl=album['albumSourceUrl']).update_one(
+                        albumCategories=newCategorys)
+
+
 def devScrapePage():
     albumUrl = 'https://hotgirl.biz/xiuren-vol-2525-jiu-shi-a-zhu/'
 
@@ -274,17 +311,15 @@ def main():
     logger.info('Start to scrape: %s' % (source))
 
     if constants.DEPLOY_ENV == 'scrape':
-        moveAndOrganizeS3structure()
-        deleteOldStorePathAlbum()
-        # for index in range(200):
 
-        #     pageUrl = originUrl + '/page/' + str(index)
-        #     albumObjLi = albumScrapeListofAlbum(pageUrl)
-
-        #     for album in albumObjLi:
-        #         albumScrapeAllImageInAlbum(album)
+        for index in range(300):
+            pageUrl = originUrl + '/page/' + str(index)
+            albumObjLi = albumScrapeListofAlbum(pageUrl)
+            for album in albumObjLi:
+                albumScrapeAllImageInAlbum(album)
 
     if constants.DEPLOY_ENV == 'local':
         # deleteAllImageSizeIsZeroInDBAndS3()
         # deleteAlbumExistOnS3ButNotInDB()
+        # correctAndSlugifyCategory()
         devScrapePage()
