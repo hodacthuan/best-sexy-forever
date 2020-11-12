@@ -83,23 +83,26 @@ def getObjectSize(s3FilePath):
 def listAllObjectsInFolder(prefix):
     """Get a list of all keys in an S3 bucket."""
     keys = []
-    kwargs = {
-        'Bucket': constants.AWS_BUCKET,
-        'Prefix': prefix
-    }
+    try:
+        kwargs = {
+            'Bucket': constants.AWS_BUCKET,
+            'Prefix': prefix
+        }
 
-    while True:
-        resp = s3.list_objects_v2(**kwargs)
+        while True:
+            resp = s3.list_objects_v2(**kwargs)
 
-        for obj in resp['Contents']:
-            keys.append(obj['Key'])
+            for obj in resp['Contents']:
+                keys.append(obj['Key'])
 
-        try:
-            kwargs['ContinuationToken'] = resp['NextContinuationToken']
-        except KeyError:
-            break
+            try:
+                kwargs['ContinuationToken'] = resp['NextContinuationToken']
+            except KeyError:
+                break
 
-    return keys
+        return keys
+    except:
+        return keys
 
 
 def listSubfolderInFolder(prefix):

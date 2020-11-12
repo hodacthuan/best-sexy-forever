@@ -219,11 +219,42 @@ def moveAndOrganizeS3structure():
                         (album['albumId']))
 
 
+def deleteOldStorePathAlbum():
+    albumInDB = Album.objects(albumSource=source)
+
+    for album in albumInDB:
+        if 'albumStorePath' in album:
+            oldStorePath = 'album/' + album['albumId']
+
+            deleted = aws.deleteAwsS3Dir(oldStorePath)
+            if deleted:
+                logger.info('Delete old album S3 dir: %s' %
+                            (album['albumId']))
+
+
+def devScrapePage():
+    albumUrl = 'https://hotgirl.biz/xiuren-vol-2525-jiu-shi-a-zhu/'
+    Album.objects(albumSourceUrl=albumUrl).delete()
+
+    album = {
+        'albumSourceUrl': albumUrl,
+        'albumThumbnail': ['https://cdn.besthotgirl.com/assets/uploads/224416.jpg']
+    }
+    albumScrapeAllImageInAlbum(album)
+
+    albumObjLi = albumScrapeListofAlbum('https://hotgirl.biz/')
+    print(albumObjLi)
+
+    for album in albumObjLi:
+        albumScrapeAllImageInAlbum(album)
+
+
 def main():
     logger.info('Start to scrape: %s' % (source))
 
     if constants.DEPLOY_ENV == 'scrape':
         moveAndOrganizeS3structure()
+        deleteOldStorePathAlbum()
         # for index in range(200):
 
         #     pageUrl = originUrl + '/page/' + str(index)
@@ -235,18 +266,4 @@ def main():
     if constants.DEPLOY_ENV == 'local':
         # deleteAllImageSizeIsZeroInDBAndS3()
         # deleteAlbumExistOnS3ButNotInDB()
-
-        albumUrl = 'https://hotgirl.biz/xiuren-vol-2525-jiu-shi-a-zhu/'
-        Album.objects(albumSourceUrl=albumUrl).delete()
-
-        album = {
-            'albumSourceUrl': albumUrl,
-            'albumThumbnail': ['https://cdn.besthotgirl.com/assets/uploads/224416.jpg']
-        }
-        albumScrapeAllImageInAlbum(album)
-
-        albumObjLi = albumScrapeListofAlbum('https://hotgirl.biz/')
-        print(albumObjLi)
-
-        for album in albumObjLi:
-            albumScrapeAllImageInAlbum(album)
+        devScrapePage()
