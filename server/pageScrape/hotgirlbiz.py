@@ -14,6 +14,7 @@ from pageScrape.models import Album, ModelInfo
 import requests
 import logging
 import mongoengine
+from sexybaby import constants
 import pageScrape
 from slugify import slugify
 from sexybaby.commons import dataLogging, downloadAndSaveToS3, deleteTempPath, getLongId, getShortId, debug
@@ -49,11 +50,16 @@ def albumScrapeListofAlbum(pageUrl):
         albumUrl = albumHtml.find('a').get('href')
         imageUrl = albumHtml.find_all(
             class_='featured-thumbnail')[0].find('img').get('data-lazy-src')
+        displayTitle = albumHtml.find_all(
+            class_='featured-thumbnail')[0].find('img').get('alt')
+        title = slugify(displayTitle, to_lower=True)
 
         if (albumUrl and imageUrl):
             album = {
                 'albumSourceUrl': albumUrl,
-                'albumThumbnail': [imageUrl]
+                'albumThumbnail': [imageUrl],
+                'albumDisplayTitle': displayTitle,
+                'albumTitle': title,
             }
 
             albumLi.append(album)
@@ -69,12 +75,15 @@ def albumScrapeAllImageInAlbum(album):
     Returns:
         Object of image contain title and images scraped
     """
-    albumInDB = Album.objects(
-        albumSourceUrl=album['albumSourceUrl'], albumSource=source)
+    if 'albumTitle' in album:
+        albumInDB = Album.objects(albumTitle=album['albumTitle'])
+    else:
+        logger.info('Find album by url: %s' % (album['albumSourceUrl']))
+        albumInDB = Album.objects(
+            albumSourceUrl=album['albumSourceUrl'])
 
     if not (len(albumInDB) == 0):
-        # dataLogging(albumInDB[0], '')
-        logger.info('Album existing  in DB: %s' % (album['albumSourceUrl']))
+        logger.info('Album existing in DB: %s' % (album['albumSourceUrl']))
         return
 
     logger.info('Scrape images in album: %s' % (album['albumSourceUrl']))
@@ -145,22 +154,27 @@ def albumScrapeAllImageInAlbum(album):
     deleteTempPath('album/' + album['albumId'])
 
 
-def scrapeEachPage():
-    for index in range(200):
+def main():
+    logger.info('Start to scrape: %s' % (source))
 
-        pageUrl = originUrl + '/page/' + str(index)
-        albumObjLi = albumScrapeListofAlbum(pageUrl)
+    if constants.DEPLOY_ENV == 'scrape':
+        for index in range(200):
+
+            pageUrl = originUrl + '/page/' + str(index)
+            albumObjLi = albumScrapeListofAlbum(pageUrl)
+
+            for album in albumObjLi:
+                albumScrapeAllImageInAlbum(album)
+
+    if constants.DEPLOY_ENV == 'local':
+        album = {
+            'albumSourceUrl': 'https://hotgirl.biz/xiuren-vol-2525-jiu-shi-a-zhu/',
+            'albumThumbnail': ['https://cdn.besthotgirl.com/assets/uploads/224416.jpg']
+        }
+        albumScrapeAllImageInAlbum(album)
+
+        albumObjLi = albumScrapeListofAlbum('https://hotgirl.biz/')
+        print(albumObjLi)
 
         for album in albumObjLi:
             albumScrapeAllImageInAlbum(album)
-
-
-def main():
-    logger.info('Start to scrape: %s' % (source))
-    album = {
-        'albumSourceUrl': 'https://hotgirl.biz/xiuren-vol-2525-jiu-shi-a-zhu/',
-        'albumThumbnail': ['https://cdn.besthotgirl.com/assets/uploads/224416.jpg']
-    }
-    # albumScrapeAllImageInAlbum(album)
-
-    scrapeEachPage()
