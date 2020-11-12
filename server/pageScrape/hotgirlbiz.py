@@ -6,7 +6,9 @@ import os
 import time
 import random
 import json
+
 import imghdr
+import datetime
 from PIL import Image
 import requests
 from bs4 import BeautifulSoup, Tag, NavigableString
@@ -89,8 +91,6 @@ def albumScrapeAllImageInAlbum(album):
 
     logger.info('Scrape images in album: %s' % (album['albumSourceUrl']))
 
-    album['albumId'] = getLongId()
-
     try:
         html = BeautifulSoup(requests.get(
             album['albumSourceUrl'],
@@ -106,6 +106,14 @@ def albumScrapeAllImageInAlbum(album):
 
         album['albumUpdatedDate'] = html.find(
             class_='single_post').find(class_='thetime').find('span').contents[0]
+
+        dateFormatted = datetime.datetime.strptime(
+            album['albumUpdatedDate'], "%B %d, %Y").strftime("%Y-%m-%d")
+        if len(dateFormatted) != 10:
+            return
+        date = str(dateFormatted).split(' ')[0].split('-')
+        album['albumStorePath'] = date[0] + '-' + date[1] + \
+            '/' + date[2] + '/' + commons.getShortId()
 
         album['albumTags'] = []
         tagsHtml = html.find(
@@ -131,7 +139,7 @@ def albumScrapeAllImageInAlbum(album):
 
         for index in range(len(imgUrls)):
             if (index):
-                imgPath = 'album/' + album['albumId']
+                imgPath = 'album/' + album['albumStorePath']
                 imgExtension = imgUrls[index].split(
                     '.')[len(imgUrls[index].split('.')) - 1]
                 imgNo = format(index, '03d')
@@ -145,16 +153,18 @@ def albumScrapeAllImageInAlbum(album):
                         album['albumThumbnail'] = ['001']
                     else:
                         album['albumImages'].append(imgNo)
-
+        print(album)
         Album(**album).save()
 
     except:
         logger.error('Cannot save to DB:' + album['albumSourceUrl'])
-        debug('Delete album ' + album['albumId'])
-        deleteAwsS3Dir('album/' + album['albumId'])
+        debug('Delete album ' + album['albumSourceUrl'])
+        if 'albumStorePath' in album:
+            deleteAwsS3Dir('album/' + album['albumStorePath'])
 
     logger.info(album)
-    deleteTempPath('album/' + album['albumId'])
+    if 'albumStorePath' in album:
+        deleteTempPath('album/' + album['albumStorePath'])
 
 
 def deleteAllImageSizeIsZeroInDBAndS3():
@@ -234,19 +244,30 @@ def deleteOldStorePathAlbum():
 
 def devScrapePage():
     albumUrl = 'https://hotgirl.biz/xiuren-vol-2525-jiu-shi-a-zhu/'
-    Album.objects(albumSourceUrl=albumUrl).delete()
 
-    album = {
+    newAlbum = {
         'albumSourceUrl': albumUrl,
         'albumThumbnail': ['https://cdn.besthotgirl.com/assets/uploads/224416.jpg']
     }
-    albumScrapeAllImageInAlbum(album)
 
-    albumObjLi = albumScrapeListofAlbum('https://hotgirl.biz/')
-    print(albumObjLi)
+    albumDeleteds = Album.objects(albumSourceUrl=albumUrl)
+    if len(albumDeleteds) > 0:
+        albumDeleted = albumDeleteds[0]
+        oldStorePath = 'album/' + albumDeleted['albumStorePath']
+        deleted = aws.deleteAwsS3Dir(oldStorePath)
+        if deleted:
+            Album.objects(albumSourceUrl=albumUrl).delete()
+            logger.info('Delete album : %s' %
+                        (albumDeleted['albumSourceUrl']))
 
-    for album in albumObjLi:
-        albumScrapeAllImageInAlbum(album)
+    else:
+        albumScrapeAllImageInAlbum(newAlbum)
+
+    # albumObjLi = albumScrapeListofAlbum('https://hotgirl.biz/')
+    # print(albumObjLi)
+
+    # for album in albumObjLi:
+    #     albumScrapeAllImageInAlbum(album)
 
 
 def main():
