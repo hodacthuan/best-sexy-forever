@@ -196,24 +196,51 @@ def deleteAlbumExistOnS3ButNotInDB():
             aws.deleteAwsS3Dir(albumS3Path)
 
 
+def moveAndOrganizeS3structure():
+    albumInDB = Album.objects(albumSource=source)
+
+    for album in albumInDB:
+        if not 'albumStorePath' in album:
+
+            date = str(album['albumUpdatedDate']).split(' ')[0].split('-')
+            oldStorePage = album['albumId']
+            newStorePath = date[0] + '-' + date[1] + \
+                '/' + date[2] + '/' + commons.getShortId()
+            for imgName in album['albumImages']:
+                fromPath = 'album/' + oldStorePage + '/' + imgName + '.jpg'
+                toPath = 'album/' + newStorePath + '/' + imgName + '.jpg'
+
+                aws.copyObjectByKey(fromPath, toPath)
+
+            Album.objects(albumSource=source, albumId=album['albumId']).update_one(
+                set__albumStorePath=newStorePath)
+
+            logger.info('Finished copy album id: %s' %
+                        (album['albumId']))
+
+
 def main():
     logger.info('Start to scrape: %s' % (source))
 
     if constants.DEPLOY_ENV == 'scrape':
-        for index in range(200):
+        moveAndOrganizeS3structure()
+        # for index in range(200):
 
-            pageUrl = originUrl + '/page/' + str(index)
-            albumObjLi = albumScrapeListofAlbum(pageUrl)
+        #     pageUrl = originUrl + '/page/' + str(index)
+        #     albumObjLi = albumScrapeListofAlbum(pageUrl)
 
-            for album in albumObjLi:
-                albumScrapeAllImageInAlbum(album)
+        #     for album in albumObjLi:
+        #         albumScrapeAllImageInAlbum(album)
 
     if constants.DEPLOY_ENV == 'local':
         # deleteAllImageSizeIsZeroInDBAndS3()
         # deleteAlbumExistOnS3ButNotInDB()
 
+        albumUrl = 'https://hotgirl.biz/xiuren-vol-2525-jiu-shi-a-zhu/'
+        Album.objects(albumSourceUrl=albumUrl).delete()
+
         album = {
-            'albumSourceUrl': 'https://hotgirl.biz/xiuren-vol-2525-jiu-shi-a-zhu/',
+            'albumSourceUrl': albumUrl,
             'albumThumbnail': ['https://cdn.besthotgirl.com/assets/uploads/224416.jpg']
         }
         albumScrapeAllImageInAlbum(album)

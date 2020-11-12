@@ -125,6 +125,17 @@ def listSubfolderInFolder(prefix):
     return keys
 
 
+def copyObjectByKey(fromKey, toKey):
+
+    copySource = {
+        'Bucket': constants.AWS_BUCKET,
+        'Key': fromKey
+    }
+    s3.copy(copySource, constants.AWS_BUCKET, toKey)
+
+    return True
+
+
 def copyFromS3(s3FilePath, filePath):
 
     s3.download_file(constants.AWS_BUCKET, s3FilePath, filePath)

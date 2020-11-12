@@ -81,6 +81,7 @@ class Album(Document):
     albumSourceUrl = StringField(required=True, unique=True)
     albumSourceId = StringField()
     albumId = StringField()
+    albumStorePath = StringField()
     albumThumbnail = ListField(StringField(required=True))
     albumTags = ListField(StringField(max_length=2000))
     albumCategories = ListField(StringField(max_length=2000))
