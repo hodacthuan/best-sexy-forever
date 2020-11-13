@@ -1,34 +1,28 @@
 
-import coloredlogs
+import os
 import csv
 import uuid
-import os
 import time
-import random
 import json
-
+import random
 import imghdr
-import datetime
-from PIL import Image
+import logging
 import requests
+import datetime
+import pageScrape
+import mongoengine
+import coloredlogs
+from PIL import Image
+from slugify import slugify
 from bs4 import BeautifulSoup, NavigableString
 from pageScrape.models import Album, ModelInfo, Tag, Category
-import requests
-import logging
-from sexybaby import commons, aws
-import mongoengine
-from sexybaby import constants
-import pageScrape
-from slugify import slugify
-from sexybaby.commons import dataLogging, downloadAndSaveToS3, deleteTempPath, getLongId, getShortId, debug
-from sexybaby.aws import deleteAwsS3Dir, uploadToAws
-import logging
+from sexybaby import commons, aws, constants, models
+
+coloredlogs.install()
 logger = logging.getLogger(__name__)
 
 originUrl = 'https://hotgirl.biz'
 source = 'hotgirlbiz'
-
-coloredlogs.install()
 
 
 def albumScrapeListofAlbum(pageUrl):
@@ -145,7 +139,7 @@ def albumScrapeAllImageInAlbum(album):
                 imgNo = format(index, '03d')
                 imgFile = imgNo + '.' + imgExtension
 
-                uploaded = downloadAndSaveToS3(
+                uploaded = commons.downloadAndSaveToS3(
                     imgUrls[index], imgPath, imgFile)
 
                 if uploaded:
@@ -158,21 +152,23 @@ def albumScrapeAllImageInAlbum(album):
 
     except:
         logger.error('Cannot save to DB:' + album['albumSourceUrl'])
-        debug('Delete album ' + album['albumSourceUrl'])
-        if 'albumStorePath' in album:
-            deleteAwsS3Dir(album['albumStorePath'])
 
-    # logger.info(album)
+        if 'albumStorePath' in album:
+            commons.debug('Delete album ' + album['albumStorePath'])
+            aws.deleteAwsS3Dir(album['albumStorePath'])
+
+    print(album)
     if 'albumStorePath' in album:
-        deleteTempPath(album['albumStorePath'])
+        commons.deleteTempPath(album['albumStorePath'])
 
 
 def devScrapePage():
-    albumUrl = 'https://hotgirl.biz/xiuren-vol-2525-jiu-shi-a-zhu/'
+    albumUrl = 'https://hotgirl.biz/xiaoyu-vol-304-carry/'
+    albumThumbnailUrl = 'https://hotgirl.biz/wp-content/uploads/2020/06/0-24141115.jpg'
 
     newAlbum = {
         'albumSourceUrl': albumUrl,
-        'albumThumbnail': ['https://cdn.besthotgirl.com/assets/uploads/224416.jpg']
+        'albumThumbnail': [albumThumbnailUrl]
     }
 
     albumDeleteds = Album.objects(albumSourceUrl=albumUrl)
@@ -183,7 +179,7 @@ def devScrapePage():
         if deleted:
             Album.objects(albumSourceUrl=albumUrl).delete()
             logger.info('Delete album : %s' %
-                        (albumDeleted['albumSourceUrl']))
+                        (albumDeleted['albumStorePath']))
 
     else:
         albumScrapeAllImageInAlbum(newAlbum)
