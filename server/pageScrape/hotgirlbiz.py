@@ -160,7 +160,7 @@ def albumScrapeAllImageInAlbum(album):
             raise Exception('Empty images, delete album s3 storage')
 
     except:
-        logger.error('Cannot save to DB:' + album['albumSourceUrl'])
+        logger.error('Error when scraping album:' + album['albumSourceUrl'])
 
         if 'albumStorePath' in album:
             deleted = aws.deleteAwsS3Dir(album['albumStorePath'])
