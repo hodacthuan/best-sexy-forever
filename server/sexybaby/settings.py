@@ -106,6 +106,11 @@ DATABASES = {
 #     }
 # }
 
+# Example for caching with django-redis
+# from django.core.cache import cache
+# cache.set("foo", "value", timeout=25000)
+# print(cache.get('foo'))
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
