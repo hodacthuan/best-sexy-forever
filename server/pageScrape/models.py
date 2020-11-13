@@ -44,31 +44,40 @@ class ModelInfo(Document):
     modelSocialFacebook = StringField()
     modelTags = ListField(StringField(max_length=2000))
 
-    meta = {'collection': 'models', 'strict': False}
+    meta = {
+        'collection': 'models',
+        'strict': False
+    }
 
 
 class Tag(Document):
     objects = QuerySetManager()
 
-    tagTitle = StringField(required=True)
+    tagTitle = StringField(required=True, unique=True)
     tagDisplayTitle = StringField(required=True)
     tagIsPublic = BooleanField(default=True)
     tagThumbnail = ListField(StringField())
     tagType = StringField()
 
-    meta = {'collection': 'tags', 'strict': False}
+    meta = {
+        'collection': 'tags',
+        'strict': False
+    }
 
 
 class Category(Document):
     objects = QuerySetManager()
 
-    categoryTitle = StringField(required=True)
+    categoryTitle = StringField(required=True, unique=True)
     categoryDisplayTitle = StringField(required=True)
     categoryIsPublic = BooleanField(default=True)
     categoryThumbnail = ListField(StringField())
     categoryType = StringField()
 
-    meta = {'collection': 'categories', 'strict': False}
+    meta = {
+        'collection': 'categories',
+        'strict': False
+    }
 
 
 class Album(Document):
@@ -91,4 +100,15 @@ class Album(Document):
     albumModelId = StringField()
     albumUpdatedDate = DateTimeField(default=datetime.datetime.utcnow)
 
-    meta = {'collection': 'albums', 'strict': False}
+    meta = {
+        'collection': 'albums',
+        'strict': False,
+        'indexes': [
+            'albumDisplayTitle',
+            'albumTags',
+            'albumCategories',
+            'albumModelName',
+            'albumModelId',
+            'albumUpdatedDate'
+        ]
+    }
