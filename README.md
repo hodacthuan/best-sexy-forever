@@ -79,7 +79,10 @@ python3 server/manage.py crontab add
 python3 server/manage.py crontab show
 python3 server/manage.py crontab remove
 ```
-
+### Access Redis Cache Server
+```
+./deploy.sh redissh
+```
 ## Roadmap
 Pages can be scrape
 
@@ -117,5 +120,8 @@ Pages can be scrape
 
 Boto
 - [Boto S3 Documents](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html)
-
 - [List all S3 Object](https://alexwlchan.net/2017/07/listing-s3-keys/)
+
+Redis
+- [Django Redis](https://github.com/jazzband/django-redis)
+- [Redis PY](https://pypi.org/project/redis/)
