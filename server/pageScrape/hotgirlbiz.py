@@ -1,4 +1,3 @@
-
 import os
 import csv
 import uuid
@@ -16,7 +15,7 @@ from PIL import Image
 from slugify import slugify
 from bs4 import BeautifulSoup, NavigableString
 from pageScrape.models import Album, ModelInfo, Tag, Category
-from sexybaby import commons, aws, constants, models
+from sexybaby import commons, aws, constants, models, cache
 
 coloredlogs.install()
 logger = logging.getLogger(__name__)

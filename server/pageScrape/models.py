@@ -83,7 +83,7 @@ class Category(Document):
 class Album(Document):
     objects = QuerySetManager()
 
-    albumTitle = StringField(required=True)
+    albumTitle = StringField(required=True, unique=True)
     albumDisplayTitle = StringField(required=True)
     albumIsPublic = BooleanField(default=False)
     albumSource = StringField(required=True)
