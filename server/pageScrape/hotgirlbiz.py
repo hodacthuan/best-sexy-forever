@@ -12,7 +12,9 @@ import pageScrape
 import mongoengine
 import coloredlogs
 from PIL import Image
+from time import sleep
 from slugify import slugify
+from sexybaby.models import Status
 from bs4 import BeautifulSoup, NavigableString
 from pageScrape.models import Album, ModelInfo, Tag, Category
 from sexybaby import commons, aws, constants, models, cache
@@ -200,16 +202,35 @@ def devScrapePage():
     #     albumScrapeAllImageInAlbum(album)
 
 
+def prodPageScrape():
+    pageIndex = 1
+    statuses = Status.objects()
+    if len(statuses) > 0:
+        pageIndex = statuses[0]['hotgirlbizPage']
+
+    for index in range(pageIndex, 364):
+        pageUrl = originUrl + '/page/' + str(index)
+        albumObjLi = albumScrapeListofAlbum(pageUrl)
+        for album in albumObjLi:
+            albumScrapeAllImageInAlbum(album)
+
+        # Save config
+        config = {
+            'hotgirlbizPage': index
+        }
+        statuses = Status.objects()
+        if len(statuses) > 0:
+            status = statuses[0]
+            Status.objects(id=status['id']).update_one(
+                set__hotgirlbizPage=index)
+        else:
+            Status(**config).save()
+
+
 def main():
     logger.info('Start to scrape: %s' % (source))
 
     if constants.DEPLOY_ENV == 'scrape':
-
-        for index in range(364):
-            pageUrl = originUrl + '/page/' + str(index + 1)
-            albumObjLi = albumScrapeListofAlbum(pageUrl)
-            for album in albumObjLi:
-                albumScrapeAllImageInAlbum(album)
-
+        prodPageScrape()
     if constants.DEPLOY_ENV == 'local':
         devScrapePage()

@@ -13,3 +13,11 @@ class AccessLogsModel(mongoengine.Document):
     timestamp = mongoengine.DateTimeField()
 
     meta = {'collection': 'accessLogs', 'strict': False}
+
+
+class Status(mongoengine.Document):
+    objects = mongoengine.QuerySetManager()
+
+    hotgirlbizPage = mongoengine.IntField()
+
+    meta = {'collection': 'status', 'strict': False}
