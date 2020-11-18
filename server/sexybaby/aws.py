@@ -140,5 +140,7 @@ def copyObjectByKey(fromKey, toKey):
 
 
 def copyFromS3(s3FilePath, filePath):
-
-    s3.download_file(constants.AWS_BUCKET, s3FilePath, filePath)
+    try:
+        s3.download_file(constants.AWS_BUCKET, s3FilePath, filePath)
+    except:
+        pass
