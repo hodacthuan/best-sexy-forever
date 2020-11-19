@@ -46,6 +46,26 @@
             {% endfor %}
         </ul>
     </ul>
+
+    <div class="jumbotron">
+        <h3>Category</h3>
+        {% for category in data.category %}
+        <a class="btn  btn-outline-primary" href="../../category/{{category.categoryTitle}}/" target="_blank"
+            role="button" style="margin: 6px 4px;">
+            {{category.categoryDisplayTitle}}
+            &raquo;</a>
+        {% endfor %}
+    </div>
+
+    <div class="jumbotron">
+        <h3>Random Tags</h3>
+        {% for tag in data.tag %}
+        <a class="btn  btn-outline-success" href="../../tag/{{tag.tagTitle}}/" target="_blank" role="button"
+            style="margin: 6px 4px;">
+            {{tag.tagDisplayTitle}}
+            &raquo;</a>
+        {% endfor %}
+    </div>
 </div>
 <!-- /.container -->
 

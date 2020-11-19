@@ -3,7 +3,7 @@ import os
 from django.views.static import serve
 from django.shortcuts import render
 from django.http import HttpResponse
-from pageScrape.models import Album
+from pageScrape.models import Album, Category, Tag
 import pageScrape
 import random
 from os import path
@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 def home(request):
     albumList = Album.objects[:16].order_by('-albumUpdatedDate')
     data = {}
+
+    # ALBUM LIST
     data['albums'] = []
     data['slide'] = []
     for album in albumList:
@@ -34,6 +36,7 @@ def home(request):
 
         data['albums'].append(albumData)
 
+    # SLIDE
     existingAlbums = []
     for album in albumList:
         albumPath = constants.IMAGE_STORAGE + album['albumTitle']
@@ -148,6 +151,8 @@ def gallery(request, pagiNo):
     })
 
     data['pageNo'] = str(format(pagiNo, '03d'))
+
+    # BREADCRUMB
     data['breadcrumb'] = [
         {
             'title': 'Home',
@@ -158,6 +163,14 @@ def gallery(request, pagiNo):
             'url': '/gallery/001'
         },
     ]
+
+    # CATEGORY LIST
+    data['category'] = Category.objects()
+
+    # TAG LIST
+    tagList = Tag.objects()
+    data['tag'] = random.sample(
+        set(tagList), 50)
 
     return render(request, 'gallery.html', {'data': data})
 
