@@ -110,6 +110,8 @@ Pages can be scrape
 |https://www.depvailon.com/    |Not enough
 |https://www.24cos.com/        |Not enough
 |http://asianboobsdaily.com/   |Not enough
+|https://www.besthotgirl.com/  |Not enough
+|https://bestgirlsexy.com/     |Not enough
 
 ## Acknowledgements
 Frontend Templates
