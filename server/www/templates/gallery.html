@@ -2,21 +2,23 @@
 {% load static %}
 {% block page_content %}
 
-
 <!-- Page Content -->
 <div class="container">
-
     <!-- Page Heading/Breadcrumbs -->
-    <h1 class="mt-4 mb-3">Gallery
-        <small>/Page {{data.pageNo}}</small>
-    </h1>
-
+    <br>
+    <hr>
     <ol class="breadcrumb">
         {% for breadcrumb in data.breadcrumb %}
-        <li class="breadcrumb-item">
+
+        <li class="breadcrumb-item" style="font-size: 18pt;">
             <a href="{{breadcrumb.url}}">{{breadcrumb.title}}</a>
         </li>
+
         {% endfor %}
+        <li class="breadcrumb-item" style="font-size: 18pt;">
+            <a>Page {{data.pageNo}}</a>
+        </li>
+
     </ol>
 
     <!-- Album List -->
@@ -47,10 +49,12 @@
         </ul>
     </ul>
 
+    <hr>
     <div class="jumbotron">
         <h3>Category</h3>
+        <hr>
         {% for category in data.category %}
-        <a class="btn  btn-outline-primary" href="../../category/{{category.categoryTitle}}/" target="_blank"
+        <a class="btn  btn-outline-primary" href="../../category/{{category.categoryTitle}}/001" target="_blank"
             role="button" style="margin: 6px 4px;">
             {{category.categoryDisplayTitle}}
             &raquo;</a>
@@ -59,8 +63,9 @@
 
     <div class="jumbotron">
         <h3>Random Tags</h3>
+        <hr>
         {% for tag in data.tag %}
-        <a class="btn  btn-outline-success" href="../../tag/{{tag.tagTitle}}/" target="_blank" role="button"
+        <a class="btn  btn-outline-success" href="../../tag/{{tag.tagTitle}}/001" target="_blank" role="button"
             style="margin: 6px 4px;">
             {{tag.tagDisplayTitle}}
             &raquo;</a>

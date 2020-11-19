@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from pageScrape.models import Album, Category, Tag
 import pageScrape
 import random
+from mongoengine.queryset.visitor import Q
 from os import path
 from sexybaby import imageUtils
 from sexybaby.commons import dataLogging
@@ -105,16 +106,9 @@ def hello(request):
     return render(request, 'hello.html')
 
 
-def gallery(request, pagiNo):
-    pagiNo = int(pagiNo)
-    pagiFrom = ((pagiNo-1) * constants.MAX_IMAGES_IN_ONE_PAGE)
-    pagiTo = (pagiNo * constants.MAX_IMAGES_IN_ONE_PAGE)
-
-    albumList = Album.objects[pagiFrom:pagiTo].order_by(
-        '-albumUpdatedDate')
+def getDataForTemplate(pagiNo, albumList, urlPath):
     data = {}
 
-    # ALBUM LIST
     data['albums'] = []
 
     for album in albumList:
@@ -135,25 +129,42 @@ def gallery(request, pagiNo):
     pagiMax = pagiMin + 9
     data['pagiObjs'] = []
     data['pagiObjs'].append({
-        'pagiUrl': '/gallery/' + str(format(pagiNo-1, '03d')),
+        'pagiUrl': '/' + urlPath + '/' + str(format(pagiNo-1, '03d')),
         'pagiNo': 'Previous',
         'pagiStatus': 'disabled' if (pagiNo == 1) else ''
     })
     for pagiIndex in range(pagiMin, pagiMax):
         pagiObj = {
-            'pagiUrl': '/gallery/' + str(format(pagiIndex+1, '03d')),
+            'pagiUrl': '/' + urlPath + '/' + str(format(pagiIndex+1, '03d')),
             'pagiNo': str(pagiIndex+1),
             'pagiStatus': 'active' if (pagiIndex+1 == pagiNo) else ''
         }
 
         data['pagiObjs'].append(pagiObj)
     data['pagiObjs'].append({
-        'pagiUrl': '/gallery/' + str(format(pagiNo+1, '03d')),
+        'pagiUrl': '/' + urlPath + '/' + str(format(pagiNo+1, '03d')),
         'pagiNo': 'Next',
         'pagiStatus': 'disabled' if (pagiMax == pagiNo) else ''
     })
 
     data['pageNo'] = str(format(pagiNo, '03d'))
+
+    data['category'] = Category.objects()
+
+    tagList = Tag.objects()
+    data['tag'] = random.sample(
+        set(tagList), 50)
+    return data
+
+
+def gallery(request, pagiNo):
+    pagiNo = int(pagiNo)
+    albumIndexFrom = ((pagiNo-1) * constants.MAX_IMAGES_IN_ONE_PAGE)
+
+    albumList = Album.objects.skip(albumIndexFrom).limit(constants.MAX_IMAGES_IN_ONE_PAGE).order_by(
+        '-albumUpdatedDate')
+
+    data = getDataForTemplate(pagiNo, albumList, 'gallery')
 
     # BREADCRUMB
     data['breadcrumb'] = [
@@ -167,13 +178,35 @@ def gallery(request, pagiNo):
         },
     ]
 
-    # CATEGORY LIST
-    data['category'] = Category.objects()
+    return render(request, 'gallery.html', {'data': data})
 
-    # TAG LIST
-    tagList = Tag.objects()
-    data['tag'] = random.sample(
-        set(tagList), 50)
+
+def category(request, categoryTitle, pagiNo):
+    pagiNo = int(pagiNo)
+    albumIndexFrom = ((pagiNo-1) * constants.MAX_IMAGES_IN_ONE_PAGE)
+
+    albumList = Album.objects(albumCategories__contains=categoryTitle).skip(albumIndexFrom).limit(constants.MAX_IMAGES_IN_ONE_PAGE).order_by(
+        '-albumUpdatedDate')
+
+    data = getDataForTemplate(pagiNo, albumList, 'category/' + categoryTitle)
+
+    # BREADCRUMB
+    categoryList = Category.objects(categoryTitle=categoryTitle)
+
+    data['breadcrumb'] = [
+        {
+            'title': 'Home',
+            'url': '/'
+        },
+        {
+            'title': 'Category',
+            'url': '/category'
+        },
+        {
+            'title': categoryList[0]['categoryDisplayTitle'],
+            'url': '/category/'+categoryTitle + '/001'
+        },
+    ]
 
     return render(request, 'gallery.html', {'data': data})
 
