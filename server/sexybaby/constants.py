@@ -2,9 +2,15 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environments
-envPath = os.path.dirname(__file__)+'/../.'+'./devops'
-envFile = Path(envPath) / 'secrets.env'
+envPath = os.path.dirname(__file__)+'/../.'+'./devops/'
+envFile = Path(envPath + 'secrets.env')
+load_dotenv(dotenv_path=envFile)
+
+DEPLOY_ENV = 'local'
+if os.environ.get('DEPLOY_ENV') is not None:
+    DEPLOY_ENV = os.environ['DEPLOY_ENV']
+
+envFile = Path(envPath + DEPLOY_ENV + '.env')
 load_dotenv(dotenv_path=envFile)
 
 MONGODB_URL = os.environ['MONGODB_URL']
@@ -19,6 +25,7 @@ REDISDB_PASSWORD = os.environ['REDISDB_PASSWORD']
 REDISDB_SERVER = os.environ['REDISDB_SERVER']
 REDISDB_PORT = os.environ['REDISDB_PORT']
 REDISDB_DBNUMBER = os.environ['REDISDB_DBNUMBER']
+IMAGE_HOST = os.environ['IMAGE_HOST']
 
 IMAGE_STORAGE = os.path.join(os.path.dirname(
     __file__), '../tempStorages/images/')
@@ -29,10 +36,3 @@ USER_AGENT_HEADER = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, 
 
 ALBUM_PAGINATION_NUMBER_OF_IMAGE = 10
 MAX_IMAGES_IN_ONE_PAGE = 32
-DEPLOY_ENV = 'local'
-if os.environ.get('DEPLOY_ENV') is not None:
-    DEPLOY_ENV = os.environ['DEPLOY_ENV']
-
-IMAGE_HOST = os.environ['LOCAL_IMAGE_HOST']
-if DEPLOY_ENV == 'prod':
-    IMAGE_HOST = os.environ['PROD_IMAGE_HOST']

@@ -94,6 +94,7 @@ def copyAlbumThumbnailFromS3ToServer(album):
         for imageNo in album['albumThumbnail']:
             copyFromS3(album['albumStorePath'] + '/' + imageNo + '.jpg',
                        storePathThumbnail + '/' + album['albumTitle'] + '-' + imageNo + '.jpg')
+
     cache.setex(cacheKey, 'true', cache.ttl['month'])
 
 
