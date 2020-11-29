@@ -312,6 +312,8 @@ def getRelatedAlbums(albumTags):
 
 
 def albums(request, albumTitle, albumPage):
+    data = {}
+
     album = commons.getAlbumDetailByTitle(albumTitle)[0]
 
     album['albumTagDetail'] = getListOfTagDetail(album['albumTags'])
@@ -356,4 +358,19 @@ def albums(request, albumTitle, albumPage):
         'pagiStatus': 'disabled' if (pagiMax == pagiNumber) else ''
     })
 
-    return render(request, 'album.html', {'album': album, 'menu': menu})
+    data['breadcrumb'] = [
+        {
+            'title': 'Home',
+            'url': '/'
+        },
+        {
+            'title': 'Gallery',
+            'url': '/gallery/001'
+        },
+        {
+            'title': album['albumDisplayTitle'],
+            'url': '/album/' + album['albumTitle'] + '/01'
+        },
+    ]
+
+    return render(request, 'album.html', {'album': album, 'data': data, 'menu': menu})

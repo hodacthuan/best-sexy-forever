@@ -3,11 +3,14 @@
 {% block page_content %}
 
 <main role="main" class="container">
+    <br>
+    <!-- Breadcrumb -->
     <ul class="breadcrumb">
-        <li class="breadcrumb-item"><a href="#">Photos</a></li>
-        <li class="breadcrumb-item"><a href="#">Summer 2017</a></li>
-        <li class="breadcrumb-item"><a href="#">Italy</a></li>
-        <li class="breadcrumb-item active">Rome</li>
+        {% for breadcrumb in data.breadcrumb %}
+        <li class="breadcrumb-item" style="font-size: 16pt;">
+            <a href="{{breadcrumb.url}}">{{breadcrumb.title}}</a>
+        </li>
+        {% endfor %}
     </ul>
 
     <div class="jumbotron">
