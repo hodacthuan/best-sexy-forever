@@ -11,6 +11,7 @@ from os import path
 from sexybaby import imageUtils
 from sexybaby.commons import dataLogging
 from sexybaby import constants
+from sexybaby import cache
 import logging
 import math
 from sexybaby import commons
@@ -277,42 +278,80 @@ def thumbnails(request, imagePath, imageFileName):
     return serve(request, imageFileName, document_root=constants.THUMBNAIL_STORAGE+imagePath)
 
 
+def getListOfTagDetail(albumTags):
+    tagDetailList = []
+    for tagTitle in albumTags:
+        tagDetailList += (commons.getTagDetailByTitle(tagTitle))
+
+    return tagDetailList
+
+
+def getRelatedAlbums(albumTags):
+
+    albumList = []
+    results = []
+    for tag in albumTags:
+        albumList += commons.getAlbumByTag(tag)
+
+    random.shuffle(albumList)
+
+    for album in albumList[0:16]:
+        commons.copyAlbumThumbnailFromS3ToServer(album)
+
+        albumData = {}
+        albumData['albumUrl'] = '/album/' + album['albumTitle'] + '/01/'
+        albumData['albumDisplayTitle'] = album['albumDisplayTitle']
+        albumData['albumThumbnailUrl'] = '/thumbnail/' + \
+            album['albumTitle'] + '/' + \
+            album['albumTitle'] + '-' + \
+            album['albumThumbnail'][0] + '.jpg'
+
+        results.append(albumData)
+
+    return results
+
+
 def albums(request, albumTitle, albumPage):
-    album = Album.objects(albumTitle=albumTitle)[0]
+    album = commons.getAlbumDetailByTitle(albumTitle)[0]
+
+    album['albumTagDetail'] = getListOfTagDetail(album['albumTags'])
+
+    album['relatedAlbums'] = getRelatedAlbums(album['albumTags'])
 
     commons.copyAlbumImagesFromS3ToServer(album)
 
-    album.albumImageUrls = []
+    album['albumImageUrls'] = []
 
     pagiNumber = int(albumPage)
     pagiInterval = constants.ALBUM_PAGINATION_NUMBER_OF_IMAGE
     pagiStop = pagiNumber * constants.ALBUM_PAGINATION_NUMBER_OF_IMAGE
 
-    for imgIndex in range(len(album.albumImages)):
+    for imgIndex in range(len(album['albumImages'])):
         imageUrl = '/image/' + \
-            album.albumTitle + '/' + \
-            album.albumTitle + '-' + \
-            album.albumImages[imgIndex] + '.jpg'
+            album['albumTitle'] + '/' + \
+            album['albumTitle'] + '-' + \
+            album['albumImages'][imgIndex] + '.jpg'
         if imgIndex >= (pagiStop-pagiInterval) and imgIndex < (pagiStop):
-            album.albumImageUrls.append(imageUrl)
+            album['albumImageUrls'].append(imageUrl)
 
-    pagiMax = math.ceil(len(album.albumImages)/pagiInterval)
-    album.pagiObjs = []
-    album.pagiObjs.append({
-        'pagiUrl': '/album/' + album.albumTitle + '/' + str(pagiNumber-1),
+    pagiMax = math.ceil(len(album['albumImages'])/pagiInterval)
+    album['pagiObjs'] = []
+    album['pagiObjs'].append({
+        'pagiUrl': '/album/' + album['albumTitle'] + '/' + str(pagiNumber-1),
         'pagiNo': 'Previous',
         'pagiStatus': 'disabled' if (1 == pagiNumber) else ''
     })
+
     for pagiNo in range(pagiMax):
         pagiObj = {
-            'pagiUrl': '/album/' + album.albumTitle + '/' + str(pagiNo+1),
+            'pagiUrl': '/album/' + album['albumTitle'] + '/' + str(pagiNo+1),
             'pagiNo': str(pagiNo+1),
             'pagiStatus': 'active' if (pagiNo+1 == pagiNumber) else ''
         }
 
-        album.pagiObjs.append(pagiObj)
-    album.pagiObjs.append({
-        'pagiUrl': '/album/' + album.albumTitle + '/' + str(pagiNumber+1),
+        album['pagiObjs'].append(pagiObj)
+    album['pagiObjs'].append({
+        'pagiUrl': '/album/' + album['albumTitle'] + '/' + str(pagiNumber+1),
         'pagiNo': 'Next',
         'pagiStatus': 'disabled' if (pagiMax == pagiNumber) else ''
     })

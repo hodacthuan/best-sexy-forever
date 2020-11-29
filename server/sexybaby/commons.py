@@ -1,21 +1,22 @@
-from .aws import uploadToAws
-from sexybaby import constants
-import logging
-import mongoengine
-import pageScrape
-import boto3
+import os
+import json
 import uuid
 import time
+import boto3
 import shutil
-from slugify import slugify
+import logging
 import os.path
-from os import path
 import coloredlogs
-import os
+import mongoengine
+import pageScrape
+import urllib.request
+from os import path
+from slugify import slugify
+from sexybaby import constants, cache
+from .aws import copyFromS3, uploadToAws
 from pageScrape.models import Album, ModelInfo, Tag, Category
 from botocore.exceptions import NoCredentialsError
-import urllib.request
-from .aws import copyFromS3
+
 coloredlogs.install()
 logger = logging.getLogger(__name__)
 s3 = boto3.client('s3', aws_access_key_id=constants.AWS_ACCESS_KEY,
@@ -62,6 +63,12 @@ def downloadAndSaveToS3(url, filePath, fileName):
 
 
 def copyAlbumImagesFromS3ToServer(album):
+    cacheKey = cache.typeKey['storage'] + \
+        cache.functionKey['copyAlbumImagesFromS3ToServer'] + \
+        album['albumTitle']
+    if cache.get(cacheKey):
+        return
+
     storePath = constants.IMAGE_STORAGE + album['albumTitle']
     if not(path.isdir(storePath)):
         os.makedirs(storePath)
@@ -69,9 +76,17 @@ def copyAlbumImagesFromS3ToServer(album):
         for imageNo in album['albumImages']:
             copyFromS3(album['albumStorePath'] + '/' + imageNo + '.jpg',
                        storePath + '/' + album['albumTitle'] + '-' + imageNo + '.jpg')
+    cache.setex(cacheKey, 'true', cache.ttl['month'])
 
 
 def copyAlbumThumbnailFromS3ToServer(album):
+
+    cacheKey = cache.typeKey['storage'] + \
+        cache.functionKey['copyAlbumThumbnailFromS3ToServer'] + \
+        album['albumTitle']
+    if cache.get(cacheKey):
+        return
+
     storePathThumbnail = constants.THUMBNAIL_STORAGE + album['albumTitle']
     if not(path.isdir(storePathThumbnail)):
         os.makedirs(storePathThumbnail)
@@ -79,6 +94,7 @@ def copyAlbumThumbnailFromS3ToServer(album):
         for imageNo in album['albumThumbnail']:
             copyFromS3(album['albumStorePath'] + '/' + imageNo + '.jpg',
                        storePathThumbnail + '/' + album['albumTitle'] + '-' + imageNo + '.jpg')
+    cache.setex(cacheKey, 'true', cache.ttl['month'])
 
 
 def deleteTempPath(filePath):
@@ -123,6 +139,51 @@ def getCategoryTitle(categoryDisplayTitle):
         Category(**category).save()
 
     return categoryTitle
+
+
+def getAlbumByTag(tag):
+    cacheKey = cache.modelKey['album'] + cache.functionKey['listByTag'] + tag
+    albumList = cache.get(cacheKey)
+
+    if (albumList):
+        return json.loads(albumList)
+    else:
+        albumList = Album.objects(albumTags__contains=tag).limit(16).order_by(
+            '-albumUpdatedDate').to_json()
+
+        cache.setex(cacheKey, albumList, cache.ttl['day'])
+
+        return Album.objects.from_json(albumList)
+
+
+def getAlbumDetailByTitle(albumTitle):
+    cacheKey = cache.modelKey['album'] + \
+        cache.functionKey['getAlbumDetailByTitle'] + albumTitle
+    albumDetail = cache.get(cacheKey)
+
+    if (albumDetail):
+        return json.loads(albumDetail)
+    else:
+        albumDetail = Album.objects(albumTitle=albumTitle).to_json()
+
+        cache.setex(cacheKey, albumDetail, cache.ttl['day'])
+
+        return json.loads(cache.get(cacheKey))
+
+
+def getTagDetailByTitle(tagTitle):
+    cacheKey = cache.modelKey['tag'] + \
+        cache.functionKey['getTagDetailByTitle'] + tagTitle
+    tagDetail = cache.get(cacheKey)
+
+    if (tagDetail):
+        return json.loads(tagDetail)
+    else:
+        tagDetail = Tag.objects(tagTitle=tagTitle).to_json()
+
+        cache.setex(cacheKey, tagDetail, cache.ttl['day'])
+
+        return Tag.objects.from_json(tagDetail)
 
 
 def debug(value):
