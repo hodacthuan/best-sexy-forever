@@ -132,3 +132,8 @@ Boto
 Redis
 - [Django Redis](https://github.com/jazzband/django-redis)
 - [Redis PY](https://pypi.org/project/redis/)
+
+Instagram
+
+- [Scraping on Instagram with Instagram Scraper and Python](https://www.danielherediamejias.com/scraping-on-instagram-with-instagram-scraper-and-python/)
+- [Instagram Scraper](https://github.com/arc298/instagram-scraper)

@@ -18,5 +18,6 @@ django-redis==4.12.1
 python-dotenv==0.15.0
 django-crontab==0.7.1
 awesome-slugify==1.6.5
+instagram-scraper
 python-telegram-bot==13.0
 django-rest-framework-mongoengine==3.4.1
