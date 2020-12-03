@@ -7,7 +7,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('login', viewsAdmin.login),
     path('password', viewsAdmin.password),
-    path('register', viewsAdmin.register)
+    path('register', viewsAdmin.register),
+    path('dashboard', viewsAdmin.dashboard)
 
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
