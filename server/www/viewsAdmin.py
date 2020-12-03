@@ -7,3 +7,7 @@ import os
 
 def login(request):
     return render(request, 'login.html')
+
+
+def password(request):
+    return render(request, 'password.html')
