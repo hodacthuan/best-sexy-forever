@@ -207,13 +207,15 @@ def devScrapePage():
 
 
 def prodPageScrape():
-    pageIndex = 1
+    pageIndex = 0
     statuses = Status.objects()
     if len(statuses) > 0:
         pageIndex = statuses[0]['hotgirlbizPage']
 
     for index in range(pageIndex, 100):
         pageUrl = originUrl + '/page/' + str(index)
+        if index == 0:
+            pageUrl = originUrl
         albumObjLi = albumScrapeListofAlbum(pageUrl)
         for album in albumObjLi:
             albumScrapeAllImageInAlbum(album)
@@ -225,7 +227,7 @@ def prodPageScrape():
 
         saveToStatus = index
         if saveToStatus > 90:
-            saveToStatus = 1
+            saveToStatus = 0
 
         statuses = Status.objects()
         if len(statuses) > 0:
